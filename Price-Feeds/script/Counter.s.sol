@@ -2,11 +2,23 @@
 pragma solidity ^0.8.13;
 
 import {Script, console} from "forge-std/Script.sol";
+import  "../src/PriceFeed.sol";
 
-contract CounterScript is Script {
-    function setUp() public {}
+contract DeployPriceFeed is Script {
+    function run() external {
+        // Start broadcasting transactions
+        vm.startBroadcast();
 
-    function run() public {
-        vm.broadcast();
+        // Deploy the PriceFeed contract
+        PriceFeed priceFeed = new PriceFeed();
+
+        // Optionally, transfer ownership if needed
+        // priceFeed.transferOwnership(<new_owner_address>);
+
+        // End broadcasting transactions
+        vm.stopBroadcast();
+
+        // Log the address of the deployed contract
+        console.log("PriceFeed deployed to:", address(priceFeed));
     }
 }
