@@ -18,17 +18,18 @@ contract PriceFeed is Ownable, IPriceFeed, ReentrancyGuard {
     event PriceFeedPublished(string pair, uint256 price, uint256 decimals);
     event PriceFeedRequested(address indexed requester, string[] pairs, uint256[] prices, uint256[] decimals);
 
-    mapping(string => Price) public Feed;
+    mapping(string pair => Price price ) public Feed;
 
-    /**
+  /**
      * @dev Updates the price feed for a given pair.
      * @param price The price data including pair, price, and decimals.
      */
-    function updatePriceFeed(Price calldata price) public onlyOwner {
-        require(price.price >= 0, "PriceFeed: Invalid price");
+    function updatePriceFeed(Price calldata price) external override onlyOwner {
+        require(bytes(price.pair).length > 0, "PriceFeed: Pair cannot be empty");
+        require(price.price > 0, "PriceFeed: Price must be greater than zero");
         require(price.decimals <= 18, "PriceFeed: Invalid decimals");
 
-        Feed[price.pair] = Price(price.pair, price.price, price.decimals);
+        Feed[price.pair] = price;
         emit PriceFeedUpdated(price.pair, price.price, price.decimals);
     }
 
@@ -36,11 +37,12 @@ contract PriceFeed is Ownable, IPriceFeed, ReentrancyGuard {
      * @dev Publishes a new price feed for a given pair.
      * @param price The price data including pair, price, and decimals.
      */
-    function publishPriceFeed(Price calldata price) public onlyOwner {
-        require(price.price >= 0, "PriceFeed: Invalid price");
+    function publishPriceFeed(Price calldata price) external override onlyOwner {
+        require(bytes(price.pair).length > 0, "PriceFeed: Pair cannot be empty");
+        require(price.price > 0, "PriceFeed: Price must be greater than zero");
         require(price.decimals <= 18, "PriceFeed: Invalid decimals");
 
-        Feed[price.pair] = Price(price.pair, price.price, price.decimals);
+        Feed[price.pair] = price;
         emit PriceFeedPublished(price.pair, price.price, price.decimals);
     }
 
@@ -49,14 +51,16 @@ contract PriceFeed is Ownable, IPriceFeed, ReentrancyGuard {
      * @param request The request data containing pairs.
      * @return response The response data including prices and decimals for the requested pairs.
      */
-    function requestPriceFeed(Request memory request) public payable nonReentrant returns (PriceResponse memory response) {
+    function requestPriceFeed(Request memory request) external payable override nonReentrant returns (PriceResponse memory response) {
+        require(request.pair.length > 0, "PriceFeed: No pairs requested");
         require(msg.value >= 0.000001 ether, "PriceFeed: Insufficient funds");
 
         uint256[] memory prices = new uint256[](request.pair.length);
         uint256[] memory decimals = new uint256[](request.pair.length);
 
-        for (uint i = 0; i < request.pair.length; i++) {
+        for (uint256 i = 0; i < request.pair.length; i++) {
             Price memory priceData = Feed[request.pair[i]];
+            require(bytes(priceData.pair).length > 0, "PriceFeed: Price not found");
             prices[i] = priceData.price;
             decimals[i] = priceData.decimals;
         }

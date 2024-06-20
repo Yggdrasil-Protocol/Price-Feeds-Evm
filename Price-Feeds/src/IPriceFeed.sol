@@ -6,6 +6,8 @@ pragma solidity ^0.8.13;
  * @dev Interface for the PriceFeed contract.
  */
 interface IPriceFeed {
+
+    
     /**
      * @dev Struct to store price data.
      * @param pair The currency pair (e.g., "ETH/USD").

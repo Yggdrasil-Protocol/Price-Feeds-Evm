@@ -1,0 +1,6 @@
+PriceFeedTest:testRequestPriceFeed() (gas: 179821)
+PriceFeedTest:testRequestPriceFeedWithInsufficientFunds() (gas: 96937)
+PriceFeedTest:testRequestPriceFeedWithNonExistingPair() (gas: 31072)
+PriceFeedTest:testUpdatePriceFeed() (gas: 84678)
+PriceFeedTest:testUpdatePriceFeedWithEmptyPair() (gas: 12437)
+PriceFeedTest:testUpdatePriceFeedWithZeroPrice() (gas: 12776)
