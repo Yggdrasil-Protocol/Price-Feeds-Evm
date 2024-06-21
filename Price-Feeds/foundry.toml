@@ -7,3 +7,7 @@ libs = ["lib"]
 
 [rpc_endpoints]
 amoy = "https://rpc.ankr.com/polygon_amoy"
+
+[anvil]
+block_time = 12
+fork_rpc_url = "https://rpc.ankr.com/polygon_amoy"

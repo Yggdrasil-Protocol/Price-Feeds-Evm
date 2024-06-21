@@ -25,15 +25,16 @@ contract PriceFeedTest is Test {
         assertEq(decimals, 18);
     }
 
-    // function testPublishPriceFeed() public {
-    //     IPriceFeed.Price memory price = IPriceFeed.Price("BTC/USD", 40000 * 10**18, 18);
-    //     priceFeed.publishPriceFeed(price);
+      function testPublishPriceFeed() public {
+        IPriceFeed.Price memory price = IPriceFeed.Price("ETH/USD", 3000 * 10**18, 18);
+        priceFeed.publishPriceFeed(price);
 
-    //     // Accessing the published price
-    //     IPriceFeed.Price memory publishedPrice = priceFeed.Feed("BTC/USD");
-    //     assertEq(publishedPrice.price, 40000 * 10**18);
-    //     assertEq(publishedPrice.decimals, 18);
-    // }
+        // Accessing the updated price
+        ( string memory pair , uint256 uPrice , uint256 decimals ) = priceFeed.Feed("ETH/USD");
+        assertEq(uPrice , 3000 * 10**18);
+        assertEq(decimals, 18);
+    }
+
 
     function testRequestPriceFeed() public {
         IPriceFeed.Price memory price1 = IPriceFeed.Price("ETH/USD", 3000 * 10**18, 18);
