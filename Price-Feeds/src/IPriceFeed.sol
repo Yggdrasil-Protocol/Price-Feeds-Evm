@@ -44,11 +44,6 @@ interface IPriceFeed {
      */
     function updatePriceFeed(Price calldata price) external;
 
-    /**
-     * @dev Publishes a new price feed for a given pair.
-     * @param price The price data including pair, price, and decimals.
-     */
-    function publishPriceFeed(Price calldata price) external;
     
     /**
      * @dev Requests the price feed for a given set of pairs.

@@ -1,26 +1,35 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import {Script, console} from "forge-std/Script.sol";
-import  "../src/PriceFeed.sol";
+import "forge-std/Script.sol";
+import "../src/PriceFeed.sol";
+import "../src/PriceFeedProxy.sol";
 
 contract DeployPriceFeed is Script {
-    function run() external {
-        // Start broadcasting transactions
-        vm.startBroadcast();
+    function setUp() public {}
 
+
+    function run() public {
         // uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
-        // vm.startBroadcast(deployerPrivateKey);
-        // Deploy the PriceFeed contract
-        PriceFeed priceFeed = new PriceFeed();
+        // string memory rpcUrl = vm.envString("RPC_URL");
 
-        // Optionally, transfer ownership if needed
-        // priceFeed.transferOwnership(<new_owner_address>);
+        // Start broadcasting transactions
+        vm.startBroadcast(0x49f841619c9ba5edaf2a5eb7aa8c146a5649b4b02aac462dccf3d02e990fb662);
 
-        // End broadcasting transactions
+        // Deploy the logic contract
+        PriceFeed priceFeedLogic = new PriceFeed();
+
+        // Deploy the proxy contract with initialization
+        PriceFeedProxy proxy = new PriceFeedProxy(
+            address(priceFeedLogic),
+            abi.encodeWithSignature("initialize()")
+        );
+
+        // Log the addresses of the deployed contracts
+        console.log("PriceFeed logic contract deployed at:", address(priceFeedLogic));
+        console.log("PriceFeed proxy contract deployed at:", address(proxy));
+
+        // Stop broadcasting transactions
         vm.stopBroadcast();
-
-        // Log the address of the deployed contract
-        console.log("PriceFeed deployed to:", address(priceFeed));
     }
 }

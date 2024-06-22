@@ -2,16 +2,20 @@
 pragma solidity ^0.8.13;
 
 import "../lib/openzeppelin-contracts/contracts/access/Ownable.sol";
-import "../lib/openzeppelin-contracts/contracts/security/ReentrancyGuard.sol";
+import "../lib/openzeppelin-contracts-upgradeable/contracts/security/ReentrancyGuardUpgradeable.sol";
 import "./IPriceFeed.sol";
 import "../lib/openzeppelin-contracts/contracts/utils/math/SafeMath.sol";
+import "../lib/openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol";
+import "../lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol";
+import "../lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol";
+
 
 
 /**
  * @title PriceFeed
  * @dev Manages price feeds that can be updated, published, and requested.
  */
-contract PriceFeed is Ownable, IPriceFeed, ReentrancyGuard {
+contract PriceFeed is Initializable, IPriceFeed,ReentrancyGuardUpgradeable, UUPSUpgradeable , OwnableUpgradeable {
     using SafeMath for uint256;
 
     event PriceFeedUpdated(string pair, uint256 price, uint256 decimals);
@@ -20,6 +24,16 @@ contract PriceFeed is Ownable, IPriceFeed, ReentrancyGuard {
 
     mapping(string pair => Price price ) public Feed;
 
+     constructor() {
+        _disableInitializers();
+    }
+
+    function initialize() public initializer {
+        __Ownable_init();
+          __ReentrancyGuard_init();
+        __UUPSUpgradeable_init(); 
+        
+    }
   /**
      * @dev Updates the price feed for a given pair.
      * @param price The price data including pair, price, and decimals.
@@ -33,18 +47,7 @@ contract PriceFeed is Ownable, IPriceFeed, ReentrancyGuard {
         emit PriceFeedUpdated(price.pair, price.price, price.decimals);
     }
 
-    /**
-     * @dev Publishes a new price feed for a given pair.
-     * @param price The price data including pair, price, and decimals.
-     */
-    function publishPriceFeed(Price calldata price) external override onlyOwner {
-        require(bytes(price.pair).length > 0, "PriceFeed: Pair cannot be empty");
-        require(price.price > 0, "PriceFeed: Price must be greater than zero");
-        require(price.decimals <= 18, "PriceFeed: Invalid decimals");
 
-        Feed[price.pair] = price;
-        emit PriceFeedPublished(price.pair, price.price, price.decimals);
-    }
 
     /**
      * @dev Requests the price feed for a given set of pairs.
@@ -69,4 +72,6 @@ contract PriceFeed is Ownable, IPriceFeed, ReentrancyGuard {
 
         return PriceResponse(prices, decimals);
     }
+
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 }

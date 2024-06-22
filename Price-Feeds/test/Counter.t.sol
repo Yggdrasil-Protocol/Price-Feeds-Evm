@@ -4,98 +4,117 @@ pragma solidity ^0.8.13;
 import "forge-std/Test.sol";
 import "../src/PriceFeed.sol";
 import "../src/PriceFeedProxy.sol";
-import "../src/IPriceFeed.sol";
 
-contract PriceFeedProxyTest is Test {
+contract PriceFeedTest is Test {
     PriceFeed public priceFeed;
     PriceFeedProxy public proxy;
     address public owner;
-    address public user;
-
-    IPriceFeed.Price public ethPrice;
-    IPriceFeed.Price public btcPrice;
-    IPriceFeed.Request public request;
-
-    struct PriceResponse {
-        uint256[] prices;
-        uint256[] decimals;
-    }
 
     function setUp() public {
         owner = address(this);
-        user = address(1);
-        priceFeed = new PriceFeed();
-        proxy = new PriceFeedProxy(address(priceFeed));
 
-        // Transfer ownership of PriceFeed to Proxy
-        priceFeed.transferOwnership(address(proxy));
+        // Deploy PriceFeed logic contract
+        PriceFeed logic = new PriceFeed();
+        bytes memory data = abi.encodeWithSignature("initialize()");
 
-        // Set up test data
-        ethPrice = IPriceFeed.Price({pair: "ETH/USD", price: 2000, decimals: 18});
-        btcPrice = IPriceFeed.Price({pair: "BTC/USD", price: 30000, decimals: 18});
-        string[] memory pairs = new string[](2);
-        pairs[0] = "ETH/USD";
-        pairs[1] = "BTC/USD";
-        request = IPriceFeed.Request({pair: pairs});
+        // Deploy proxy with logic and data
+        proxy = new PriceFeedProxy(address(logic), data);
+        priceFeed = PriceFeed(address(proxy));
+
+        // Verify that the owner is set correctly
+        assertEq(priceFeed.owner(), owner);
     }
 
     function testUpdatePriceFeed() public {
-        vm.prank(owner);
-        proxy.updatePriceFeed(ethPrice);
+        IPriceFeed.Price memory price = IPriceFeed.Price({
+            pair: "ETH/USD",
+            price: 3000 * 10 ** 18,
+            decimals: 18
+        });
 
-        (string memory pair , uint256 priceValue, uint256 decimals) = priceFeed.Feed("ETH/USD");
-        assertEq(priceValue, 2000);
+        // Update price feed
+        priceFeed.updatePriceFeed(price);
+
+        // Fetch the updated price feed
+        (string memory pair, uint256 priceValue, uint256 decimals) = priceFeed
+            .Feed("ETH/USD");
+
+        console.log(pair);
+        console.log(priceValue);
+        console.log(decimals);
+
+        assertEq(pair, "ETH/USD");
+        assertEq(priceValue, 3000 * 10 ** 18);
         assertEq(decimals, 18);
     }
 
-    function testPublishPriceFeed() public {
-        vm.prank(owner);
-        proxy.publishPriceFeed(btcPrice);
+    function testFailUpdatePriceFeedByNonOwner() public {
+        vm.prank(address(0x1));
+        IPriceFeed.Price memory price = IPriceFeed.Price({
+            pair: "ETH/USD",
+            price: 3000 * 10 ** 18,
+            decimals: 18
+        });
 
-        (string memory pair  , uint256 priceValue, uint256 decimals) = priceFeed.Feed("BTC/USD");
-        assertEq(priceValue, 30000);
-        assertEq(decimals, 18);
+        // Attempt to update price feed by non-owner
+        priceFeed.updatePriceFeed(price);
     }
 
     function testRequestPriceFeed() public {
-        vm.prank(owner);
-        proxy.updatePriceFeed(ethPrice);
-        proxy.updatePriceFeed(btcPrice);
+        IPriceFeed.Price memory price1 = IPriceFeed.Price({
+            pair: "ETH/USD",
+            price: 3000 * 10 ** 18,
+            decimals: 18
+        });
 
-        vm.prank(user);
-        vm.deal(user, 1 ether); // Ensure user has enough balance to send ether
-        (bool success, bytes memory data) = address(proxy).call{value: 0.000001 ether}(abi.encodeWithSelector(proxy.requestPriceFeed.selector, request));
-        require(success, "Request Price Feed call failed");
+        IPriceFeed.Price memory price2 = IPriceFeed.Price({
+            pair: "BTC/USD",
+            price: 40000 * 10 ** 18,
+            decimals: 18
+        });
 
-        PriceResponse memory response = abi.decode(data, (PriceResponse));
-        assertEq(response.prices[0], 2000);
+        // Update price feeds
+        priceFeed.updatePriceFeed(price1);
+        priceFeed.updatePriceFeed(price2);
+
+        // Request price feeds
+        IPriceFeed.Request memory request = IPriceFeed.Request({
+            pair: new string[](2)
+        });
+        request.pair[0] = "ETH/USD";
+        request.pair[1] = "BTC/USD";
+
+        uint256 requestFee = 0.000001 ether;
+        IPriceFeed.PriceResponse memory response = priceFeed.requestPriceFeed{
+            value: requestFee
+        }(request);
+
+        // Verify the response
+        assertEq(response.prices[0], 3000 * 10 ** 18);
         assertEq(response.decimals[0], 18);
-        assertEq(response.prices[1], 30000);
+        assertEq(response.prices[1], 40000 * 10 ** 18);
         assertEq(response.decimals[1], 18);
     }
 
-    function testUpdatePriceFeedAddress() public {
-        PriceFeed newPriceFeed = new PriceFeed();
-        
-        vm.prank(owner);
-        proxy.updatePriceFeedAddress(address(newPriceFeed));
-        
-        assertEq(proxy.priceFeedAddress(), address(newPriceFeed));
+     function testFailRequestPriceFeedWithoutPayment() public {
+        IPriceFeed.Request memory request = IPriceFeed.Request({
+            pair: new string [](1)
+        });
+        request.pair[0] = "ETH/USD";
+
+        // Attempt to request price feed without payment
+        priceFeed.requestPriceFeed(request);
     }
 
-    function testFailUpdatePriceFeedNonOwner() public {
-        vm.prank(user);
-        proxy.updatePriceFeed(ethPrice);
-    }
+    function testFailRequestPriceFeedNonExistentPair() public {
+        IPriceFeed.Request memory request = IPriceFeed.Request({
+            pair: new string [](1)
+        });
+        request.pair[0] = "NONEXISTENT/PAIR";
 
-    function testFailPublishPriceFeedNonOwner() public {
-        vm.prank(user);
-        proxy.publishPriceFeed(btcPrice);
-    }
+        uint256 requestFee = 0.000001 ether;
 
-    function testFailRequestPriceFeedInsufficientFunds() public {
-        vm.prank(user);
-        (bool success, ) = address(proxy).call{value: 0.0000001 ether}(abi.encodeWithSelector(proxy.requestPriceFeed.selector, request));
-        require(!success, "Request Price Feed should fail with insufficient funds");
+        // Attempt to request price feed for a non-existent pair
+        priceFeed.requestPriceFeed{value: requestFee}(request);
     }
 }
