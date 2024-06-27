@@ -3,13 +3,16 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 	"math/big"
 	"strings"
+	"time"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
 )
 
@@ -20,6 +23,12 @@ type Client struct {
 	auth     *bind.TransactOpts
 	abi      abi.ABI
 }
+
+const (
+	rpcEndpoint     = "https://rpc.ankr.com/polygon_amoy"
+	privateKeyHex   = "49f841619c9ba5edaf2a5eb7aa8c146a5649b4b02aac462dccf3d02e990fb662"
+	contractAddress = "0xc9AfB6724414337b4048BdA4EA73F38f5598cD9F"
+)
 
 // NewClient creates a new instance of Client
 func NewClient(ethURL, contractAddress string, auth *bind.TransactOpts) (*Client, error) {
@@ -177,4 +186,93 @@ func (c *Client) WatchPriceFeedUpdated(ctx context.Context) (<-chan *PriceFeedPr
 	}()
 
 	return events, errors
+}
+
+func main() {
+	// Load the private key
+	privateKey, err := crypto.HexToECDSA(privateKeyHex)
+	if err != nil {
+		log.Fatalf("Failed to load private key: %v", err)
+	}
+
+	// Create an authorized transactor
+	auth := bind.NewKeyedTransactor(privateKey)
+
+	// Create a new PriceFeed client
+	client, err := NewClient(rpcEndpoint, contractAddress, auth)
+	if err != nil {
+		log.Fatalf("Failed to create PriceFeed client: %v", err)
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
+	defer cancel()
+
+	// Get current price feed
+	pair, price, decimals, err := client.GetFeed(ctx, "ETH/USD")
+	if err != nil {
+		log.Fatalf("Failed to get feed: %v", err)
+	}
+	fmt.Printf("Current price for %s: %s (with %s decimals)\n", pair, price.String(), decimals.String())
+
+	// Update price feed
+	newPrice := new(big.Int).Add(price, big.NewInt(100)) // Increase price by 100
+	err = client.UpdatePriceFeed(ctx, "ETH/USD", newPrice, decimals)
+	if err != nil {
+		log.Fatalf("Failed to update price feed: %v", err)
+	}
+	fmt.Printf("Updated price feed for ETH/USD to %s\n", newPrice.String())
+
+	// Get updated price feed
+	pair, price, decimals, err = client.GetFeed(ctx, "ETH/USD")
+	if err != nil {
+		log.Fatalf("Failed to get updated feed: %v", err)
+	}
+	fmt.Printf("Updated price for %s: %s (with %s decimals)\n", pair, price.String(), decimals.String())
+
+	// Request price feed for multiple pairs
+	tx, err := client.RequestPriceFeed(ctx, []string{"ETH/USD", "BTC/USD"})
+	if err != nil {
+		log.Fatalf("Failed to request price feed: %v", err)
+	}
+	fmt.Printf("Requested price feed. Transaction hash: %s\n", tx.Hash().Hex())
+
+	// Get the result of the price feed request
+	result, err := client.GetRequestPriceFeedResult(ctx, tx)
+	if err != nil {
+		log.Fatalf("Failed to get price feed result: %v", err)
+	}
+
+	for i, price := range result.Prices {
+		fmt.Printf("Requested Price %d: %s (with %s decimals)\n", i, price.String(), result.Decimals[i].String())
+	}
+
+	// Get the current owner of the contract
+	owner, err := client.GetOwner(ctx)
+	if err != nil {
+		log.Fatalf("Failed to get owner: %v", err)
+	}
+	fmt.Printf("Current contract owner: %s\n", owner.Hex())
+
+	// Set up event watching
+	events, errors := client.WatchPriceFeedUpdated(ctx)
+
+	// Update price feed again to trigger an event
+	go func() {
+		time.Sleep(2 * time.Second)                         // Wait a bit before updating
+		newPrice := new(big.Int).Add(price, big.NewInt(50)) // Increase price by 50
+		err := client.UpdatePriceFeed(ctx, "ETH/USD", newPrice, decimals)
+		if err != nil {
+			log.Printf("Failed to update price feed: %v", err)
+		}
+	}()
+
+	// Wait for and print the event
+	select {
+	case event := <-events:
+		fmt.Printf("Event received - Price updated for %s: %s (with %s decimals)\n", event.Pair, event.Price.String(), event.Decimals.String())
+	case err := <-errors:
+		fmt.Printf("Error watching for events: %v\n", err)
+	case <-time.After(1 * time.Minute):
+		fmt.Println("Timeout waiting for event")
+	}
 }
