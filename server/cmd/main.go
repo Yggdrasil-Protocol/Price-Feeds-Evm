@@ -5,26 +5,41 @@ import (
 	"fmt"
 	"log"
 	"math/big"
+	"strings"
 	"sync"
-	"time"
 
 	"github.com/ethereum/go-ethereum"
+	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
 
-	"github.com/DeonLabs/PriceFeedServer/PriceFeedContract"
+	"github.com/Yggdrasil-Protocol/PriceFeedServer/PriceFeedContract"
 )
 
 const (
 	rpcURL             = "https://rpc.ankr.com/polygon_amoy"
 	privateKeyHex      = "49f841619c9ba5edaf2a5eb7aa8c146a5649b4b02aac462dccf3d02e990fb662"
 	contractAddressHex = "0xE5C5CE5f8EDbF88E1663b4ADE74ED13d369c89B9"
+	workerCount        = 5
 )
 
-var client *ethclient.Client
+var (
+	client   *ethclient.Client
+	contract *PriceFeedContract.PriceFeedContract
+	auth     *bind.TransactOpts
+	nonceMu  sync.Mutex
+	nonce    uint64
+	chainID  *big.Int
+)
+
+type PriceFeed struct {
+	Pair     string
+	Price    *big.Int
+	Decimals *big.Int
+}
 
 func main() {
 	var err error
@@ -33,6 +48,11 @@ func main() {
 		log.Fatalf("Failed to connect to the Ethereum client: %v", err)
 	}
 	defer client.Close()
+
+	chainID, err = client.ChainID(context.Background())
+	if err != nil {
+		log.Fatalf("Failed to get chain ID: %v", err)
+	}
 
 	contractAddress := common.HexToAddress(contractAddressHex)
 	contract, err := PriceFeedContract.NewPriceFeedContract(contractAddress, client)
@@ -45,132 +65,117 @@ func main() {
 		log.Fatalf("Failed to create auth transactor: %v", err)
 	}
 
-	// Example 1: Get multiple price feeds concurrently
-	getPriceFeeds(contract, []string{"ETH-USD", "BTC-USD", "MATIC-USD"})
-
-	// Example 2: Update a price feed
-	updatePriceFeed(contract, auth)
-
-	// Example 3: Request multiple price feeds and wait for events
-	requestPriceFeeds(contract, auth, []string{"ETH-USD", "BTC-USD", "MATIC-USD"})
-}
-
-func getPriceFeeds(contract *PriceFeedContract.PriceFeedContract, pairs []string) {
-	var wg sync.WaitGroup
-	results := make(chan struct {
-		pair string
-		feed struct {
-			Pair     string
-			Price    *big.Int
-			Decimals *big.Int
-		}
-		err error
-	}, len(pairs))
-
-	for _, pair := range pairs {
-		wg.Add(1)
-		go func(p string) {
-			defer wg.Done()
-			feed, err := contract.Feed(&bind.CallOpts{}, p)
-			results <- struct {
-				pair string
-				feed struct {
-					Pair     string
-					Price    *big.Int
-					Decimals *big.Int
-				}
-				err error
-			}{p, feed, err}
-		}(pair)
+	// Initialize nonce
+	nonce, err = client.PendingNonceAt(context.Background(), auth.From)
+	if err != nil {
+		log.Fatalf("Failed to get initial nonce: %v", err)
 	}
 
-	go func() {
-		wg.Wait()
-		close(results)
-	}()
+	updateMultiplePriceFeeds(contract, auth, preparePriceFeeds())
+}
 
-	for result := range results {
-		if result.err != nil {
-			log.Printf("Failed to get feed for %s: %v\n", result.pair, result.err)
-		} else {
-			fmt.Printf("Feed for %s: Price = %s, Decimals = %s\n", result.pair, result.feed.Price.String(), result.feed.Decimals.String())
-		}
+func preparePriceFeeds() []PriceFeedContract.IPriceFeedPrice {
+	return []PriceFeedContract.IPriceFeedPrice{
+		{Pair: "HOT-USD", Price: big.NewInt(100000), Decimals: big.NewInt(8)},
+		{Pair: "ZIL-USD", Price: big.NewInt(2000000), Decimals: big.NewInt(8)},
+		{Pair: "BAT-USD", Price: big.NewInt(25000000), Decimals: big.NewInt(8)},
+		{Pair: "RVN-USD", Price: big.NewInt(2000000), Decimals: big.NewInt(8)},
+		{Pair: "THETA-USD", Price: big.NewInt(80000000), Decimals: big.NewInt(8)},
+		// Add more feeds as needed
 	}
 }
 
-func waitForTx(txHash common.Hash) (*types.Receipt, error) {
-	ctx := context.Background()
+func updateMultiplePriceFeeds(contract *PriceFeedContract.PriceFeedContract, auth *bind.TransactOpts, priceFeeds []PriceFeedContract.IPriceFeedPrice) {
+	workChan := make(chan PriceFeedContract.IPriceFeedPrice, len(priceFeeds))
+	resultChan := make(chan struct{}, len(priceFeeds))
+
+	// Start workers
+	for i := 0; i < workerCount; i++ {
+		go worker(contract, auth, workChan, resultChan)
+	}
+
+	// Distribute work
+	for _, feed := range priceFeeds {
+		workChan <- feed
+	}
+	close(workChan)
+
+	// Wait for results
+	for i := 0; i < len(priceFeeds); i++ {
+		<-resultChan
+	}
+
+	fmt.Println("All price feeds updated.")
+}
+
+func worker(contract *PriceFeedContract.PriceFeedContract, auth *bind.TransactOpts, workChan <-chan PriceFeedContract.IPriceFeedPrice, resultChan chan<- struct{}) {
+	for feed := range workChan {
+		updatePriceFeed(contract, auth, feed)
+		resultChan <- struct{}{}
+	}
+}
+
+func updatePriceFeed(contract *PriceFeedContract.PriceFeedContract, auth *bind.TransactOpts, feed PriceFeedContract.IPriceFeedPrice) {
+	contractAbi, err := abi.JSON(strings.NewReader(PriceFeedContract.PriceFeedContractABI))
+	if err != nil {
+		log.Fatalf("Failed to parse contract ABI: %v", err)
+	}
+
+	callData, err := contractAbi.Pack("updatePriceFeed", feed)
+	if err != nil {
+		log.Fatalf("Failed to pack data for updatePriceFeed: %v", err)
+	}
+
+	nonceMu.Lock()
+	defer nonceMu.Unlock()
+
+	gasPrice, err := client.SuggestGasPrice(context.Background())
+	if err != nil {
+		log.Fatalf("Failed to suggest gas price: %v", err)
+	}
+
+	contractAddress := common.HexToAddress(contractAddressHex)
+
+	tx := types.NewTx(&types.DynamicFeeTx{
+		ChainID:   chainID,
+		Nonce:     nonce,
+		GasTipCap: gasPrice,
+		GasFeeCap: auth.GasPrice,
+		Gas:       auth.GasLimit,
+		To:        &contractAddress,
+		Value:     big.NewInt(0),
+		Data:      callData,
+	})
+	nonce++
+
+	signedTx, err := auth.Signer(auth.From, tx)
+	if err != nil {
+		log.Fatalf("Failed to sign transaction: %v", err)
+	}
+
+	err = client.SendTransaction(context.Background(), signedTx)
+	if err != nil {
+		log.Fatalf("Failed to send transaction: %v", err)
+	}
+
+	fmt.Printf("Price feed update transaction sent: %s\n", signedTx.Hash().Hex())
+	waitForTx(signedTx.Hash(), feed)
+}
+
+func waitForTx(txHash common.Hash, feed PriceFeedContract.IPriceFeedPrice) {
 	for {
-		receipt, err := client.TransactionReceipt(ctx, txHash)
+		receipt, err := client.TransactionReceipt(context.Background(), txHash)
+		if err == ethereum.NotFound {
+			fmt.Println("Transaction not yet mined. Waiting...")
+			continue
+		}
 		if err != nil {
-			if err == ethereum.NotFound {
-				time.Sleep(time.Second)
-				continue
-			}
-			return nil, err
+			log.Printf("Error getting transaction receipt: %v", err)
+			return
 		}
-		return receipt, nil
-	}
-}
-
-func updatePriceFeed(contract *PriceFeedContract.PriceFeedContract, auth *bind.TransactOpts) {
-	updatePrice := PriceFeedContract.IPriceFeedPrice{
-		Pair:     "MATIC-USD",
-		Price:    big.NewInt(200000000000), // $2000.00000000
-		Decimals: big.NewInt(8),
-	}
-	tx, err := contract.UpdatePriceFeed(auth, updatePrice)
-	if err != nil {
-		log.Fatalf("Failed to update price feed: %v", err)
-	}
-	fmt.Printf("Price feed update transaction sent: %s\n", tx.Hash().Hex())
-
-	receipt, err := waitForTx(tx.Hash())
-	if err != nil {
-		log.Fatalf("Failed to get transaction receipt: %v", err)
-	}
-	fmt.Printf("Price feed update transaction mined in block: %d\n", receipt.BlockNumber)
-}
-
-func requestPriceFeeds(contract *PriceFeedContract.PriceFeedContract, auth *bind.TransactOpts, pairs []string) {
-	request := PriceFeedContract.IPriceFeedRequest{
-		Pair: pairs,
-	}
-	tx, err := contract.RequestPriceFeed(auth, request)
-	if err != nil {
-		log.Fatalf("Failed to request price feed: %v", err)
-	}
-	fmt.Printf("Price feed request transaction sent: %s\n", tx.Hash().Hex())
-
-	receipt, err := waitForTx(tx.Hash())
-	if err != nil {
-		log.Fatalf("Failed to get transaction receipt: %v", err)
-	}
-	fmt.Printf("Price feed request transaction mined in block: %d\n", receipt.BlockNumber)
-
-	watchPriceFeedRequested(contract, auth.From, receipt.BlockNumber)
-}
-
-func watchPriceFeedRequested(contract *PriceFeedContract.PriceFeedContract, requester common.Address, fromBlock *big.Int) {
-	events := make(chan *PriceFeedContract.PriceFeedContractPriceFeedRequested)
-	startBlock := fromBlock.Uint64()
-	sub, err := contract.WatchPriceFeedRequested(&bind.WatchOpts{Start: &startBlock}, events, []common.Address{requester})
-	if err != nil {
-		log.Fatalf("Failed to watch for PriceFeedRequested events: %v", err)
-	}
-	defer sub.Unsubscribe()
-
-	select {
-	case event := <-events:
-		fmt.Printf("PriceFeedRequested event:\n")
-		fmt.Printf("  Requester: %s\n", event.Requester.Hex())
-		for i, pair := range event.Pairs {
-			fmt.Printf("  Pair: %s, Price: %s, Decimals: %s\n", pair, event.Prices[i].String(), event.Decimals[i].String())
-		}
-	case err := <-sub.Err():
-		log.Fatalf("Error in event subscription: %v", err)
-	case <-time.After(2 * time.Minute):
-		log.Println("Timeout waiting for PriceFeedRequested event")
+		fmt.Printf("Transaction mined in block: %d\n", receipt.BlockNumber)
+		fmt.Printf("Updated %s: Price = %s, Decimals = %s\n", feed.Pair, feed.Price.String(), feed.Decimals.String())
+		return
 	}
 }
 
@@ -180,21 +185,16 @@ func getAuthTransactor(privateKeyHex string) (*bind.TransactOpts, error) {
 		return nil, fmt.Errorf("failed to parse private key: %v", err)
 	}
 
-	chainID, err := client.ChainID(context.Background())
-	if err != nil {
-		return nil, fmt.Errorf("failed to get chain ID: %v", err)
-	}
-
 	auth, err := bind.NewKeyedTransactorWithChainID(privateKey, chainID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create transactor: %v", err)
 	}
 
-	auth.GasLimit = uint64(300000) // Consider using client.EstimateGas in production
+	auth.GasLimit = uint64(3000000) // Increased gas limit for multiple calls
 	auth.GasPrice, err = client.SuggestGasPrice(context.Background())
 	if err != nil {
 		return nil, fmt.Errorf("failed to suggest gas price: %v", err)
 	}
 
-	return auth, err
+	return auth, nil
 }
