@@ -19,7 +19,6 @@ contract PriceFeed is Initializable, IPriceFeed,ReentrancyGuardUpgradeable, UUPS
     using SafeMath for uint256;
 
     event PriceFeedUpdated(string pair, uint256 price, uint256 decimals);
-    event PriceFeedPublished(string pair, uint256 price, uint256 decimals);
     event PriceFeedRequested(address indexed requester, string[] pairs, uint256[] prices, uint256[] decimals);
 
     mapping(string pair => Price price ) public Feed;
@@ -46,8 +45,6 @@ contract PriceFeed is Initializable, IPriceFeed,ReentrancyGuardUpgradeable, UUPS
         Feed[price.pair] = price;
         emit PriceFeedUpdated(price.pair, price.price, price.decimals);
     }
-
-
 
     /**
      * @dev Requests the price feed for a given set of pairs.
