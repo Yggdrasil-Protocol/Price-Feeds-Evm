@@ -17,7 +17,7 @@ interface IPriceFeed {
     struct Price { 
         string pair; 
         uint256 price; 
-        uint256 decimals; 
+        uint8 decimals; 
     }
 
     /**
@@ -35,7 +35,7 @@ interface IPriceFeed {
      */
     struct PriceResponse { 
         uint256[] prices; 
-        uint256[] decimals; 
+        uint8[] decimals; 
     } 
 
     /**
@@ -43,6 +43,9 @@ interface IPriceFeed {
      * @param price The price data including pair, price, and decimals.
      */
     function updatePriceFeed(Price calldata price) external;
+
+
+    function updateMultiplePriceFeeds(Price[] calldata prices) external;
 
     
     /**
