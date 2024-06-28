@@ -1,104 +1,126 @@
-// SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.13;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
 
+import "../lib/openzeppelin-contracts/contracts/utils/cryptography/ECDSA.sol";
+import "../lib/openzeppelin-contracts/contracts/security/ReentrancyGuard.sol";
 import "../lib/openzeppelin-contracts/contracts/access/Ownable.sol";
-import "../lib/openzeppelin-contracts-upgradeable/contracts/security/ReentrancyGuardUpgradeable.sol";
-import "./IPriceFeed.sol";
 import "../lib/openzeppelin-contracts/contracts/utils/math/SafeMath.sol";
-import "../lib/openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol";
-import "../lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol";
-import "../lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol";
+import "./IPriceFeedReciever.sol";
 
-/**
- * @title PriceFeed
- * @dev Manages price feeds that can be updated, published, and requested.
- */
-contract PriceFeed is Initializable, IPriceFeed, ReentrancyGuardUpgradeable, UUPSUpgradeable, OwnableUpgradeable {
+contract PriceFeed is ReentrancyGuard, Ownable {
+    // Function to receive Ether. msg.data must be empty
+    receive() external payable {}
+
+    // Fallback function is called when msg.data is not empty
+    fallback() external payable {}
+
+    using ECDSA for bytes32;
     using SafeMath for uint256;
 
-    event PriceFeedUpdated(string pair, uint256 price, uint8 decimals);
-    event PriceFeedRequested(address indexed requester, string[] pairs, uint256[] prices, uint8[] decimals);
+    address public trustedSigner;
+    uint256 public feePerAsset;
+    mapping(bytes32 => uint256) public prices;
+    mapping(bytes32 => uint8) public decimals;
 
-  
-    mapping(bytes32 => Price) public Feed;
+    uint256 public constant MAX_ASSETS_PER_REQUEST = 100;
 
-    constructor() {
-        _disableInitializers();
+    event PriceUpdated(bytes32 indexed asset, uint256 price, uint8 decimal);
+    event PricesRequested(address indexed requester, bytes32[] assets);
+    event FeeUpdated(uint256 newFeePerAsset);
+    event TrustedSignerUpdated(address newSigner);
+
+    error InvalidSignature();
+    error InsufficientFee(uint256 required, uint256 provided);
+    error TooManyAssets(uint256 provided, uint256 maximum);
+    error PriceNotAvailable(bytes32 asset);
+
+    error ZeroAddress();
+    error TransferFailed();
+
+    constructor(uint256 _initialFeePerAsset) {
+        trustedSigner = owner();
+        feePerAsset = _initialFeePerAsset;
     }
 
-    function initialize() public initializer {
-        __Ownable_init();
-        __ReentrancyGuard_init();
-        __UUPSUpgradeable_init();
+    function setTrustedSigner(address _newSigner) external onlyOwner {
+        if (_newSigner == address(0)) revert ZeroAddress();
+        trustedSigner = _newSigner;
+        emit TrustedSignerUpdated(_newSigner);
     }
 
-    /**
-     * @dev Updates the price feed for a given pair.
-     * @param price The price data including pair, price, and decimals.
-     */
-    function updatePriceFeed(Price calldata price) external override onlyOwner {
-        require(bytes(price.pair).length > 0, "PriceFeed: Pair cannot be empty");
-        require(price.price > 0, "PriceFeed: Price must be greater than zero");
-        require(price.decimals <= 18, "PriceFeed: Invalid decimals");
-
-        bytes32 pairHash = keccak256(bytes(price.pair));
-        Feed[pairHash] = price;
-
-        emit PriceFeedUpdated(price.pair, price.price, price.decimals);
+    function setFeePerAsset(uint256 _newFeePerAsset) external onlyOwner {
+        feePerAsset = _newFeePerAsset;
+        emit FeeUpdated(_newFeePerAsset);
     }
 
-    /**
-     * @dev Updates multiple price feeds in a single transaction.
-     * @param prices Array of price data including pairs, prices, and decimals.
-     */
-    function updateMultiplePriceFeeds(Price[] calldata prices) external onlyOwner {
-        uint256 length = prices.length;
+    function updatePrice(
+        bytes32[] calldata _assets,
+        uint8[] calldata _decimals,
+        uint256[] calldata _prices,
+        bytes memory _signature
+    ) external {
+        bytes32 messageHash = keccak256(
+            abi.encodePacked(_assets, _prices, _decimals)
+        );
+        bytes32 ethSignedMessageHash = ECDSA.toEthSignedMessageHash(
+            messageHash
+        );
+        address signer = ECDSA.recover(ethSignedMessageHash, _signature);
+
+        if (signer != trustedSigner) revert InvalidSignature();
+
+        uint256 length = _assets.length;
 
         for (uint256 i = 0; i < length; ) {
-            Price calldata price = prices[i];
+            bytes32 asset = _assets[i];
+            uint8 decimal = _decimals[i];
+            uint256 price = _prices[i];
+            prices[asset] = price;
+            emit PriceUpdated(asset, price, decimal);
 
-            // Validate input data
-            require(bytes(price.pair).length > 0, "PriceFeed: Pair cannot be empty");
-            require(price.price > 0, "PriceFeed: Price must be greater than zero");
-            require(price.decimals <= 18, "PriceFeed: Invalid decimals");
-
-            // Store price data in storage efficiently
-            bytes32 pairHash = keccak256(bytes(price.pair));
-            Feed[pairHash] = price;
-
-            emit PriceFeedUpdated(price.pair, price.price, price.decimals);
-
-            unchecked { i++; }
+            unchecked {
+                i++;
+            }
         }
     }
 
-    /**
-     * @dev Requests the price feed for a given set of pairs.
-     * @param request The request data containing pairs.
-     * @return response The response data including prices and decimals for the requested pairs.
-     */
-    function requestPriceFeed(Request memory request) external payable override nonReentrant returns (PriceResponse memory response) {
-        uint256 length = request.pair.length;
-        require(length > 0, "PriceFeed: No pairs requested");
-        require(msg.value >= 0.000001 ether, "PriceFeed: Insufficient funds");
+    function requestPrices(
+        bytes32[] calldata _assets,
+        function(uint256[] memory, uint8[] memory) external _callback
+    ) external payable nonReentrant {
+        if (_assets.length > MAX_ASSETS_PER_REQUEST)
+            revert TooManyAssets(_assets.length, MAX_ASSETS_PER_REQUEST);
 
-        uint256[] memory prices = new uint256[](length);
-        uint8[] memory decimals = new uint8[](length);
+        // emit PricesRequested(msg.sender, _assets);
+        uint8[] memory requestedDecimals = new uint8[](_assets.length);
+        uint256[] memory requestedPrices = new uint256[](_assets.length);
 
-        for (uint256 i = 0; i < length; ) {
-            bytes32 pairHash = keccak256(bytes(request.pair[i]));
-            Price memory priceData = Feed[pairHash];
-            require(bytes(priceData.pair).length > 0, "PriceFeed: Price not found");
-            prices[i] = priceData.price;
-            decimals[i] = priceData.decimals;
+        for (uint256 i = 0; i < _assets.length; ) {
+            bytes32 asset = _assets[i];
+            uint256 price = prices[asset];
+            uint8 decimal = decimals[asset];
 
-            unchecked { i++; }
+            if (price == 0) revert PriceNotAvailable(asset);
+            requestedPrices[i] = price;
+            requestedDecimals[i] = decimal;
+
+            unchecked {
+                i++;
+            }
         }
 
-        emit PriceFeedRequested(msg.sender, request.pair, prices, decimals);
+        if (msg.value < feePerAsset.mul(_assets.length))
+            revert InsufficientFee(feePerAsset.mul(_assets.length), msg.value);
 
-        return PriceResponse(prices, decimals);
+        _callback(requestedPrices, requestedDecimals);
     }
 
-    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
+    function withdraw() public onlyOwner {
+        // get the amount of Ether stored in this contract
+        uint256 amount = address(this).balance;
+
+        // send all Ether to owner
+        (bool success, ) = owner().call{value: amount}("");
+        require(success, "Failed to send Ether");
+    }
 }

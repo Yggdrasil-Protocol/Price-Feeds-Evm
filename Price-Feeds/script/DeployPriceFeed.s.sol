@@ -17,7 +17,7 @@ contract DeployPriceFeed is Script {
         vm.startBroadcast(0x49f841619c9ba5edaf2a5eb7aa8c146a5649b4b02aac462dccf3d02e990fb662);
 
         // Deploy the logic contract
-        PriceFeed priceFeedLogic = new PriceFeed();
+        PriceFeed priceFeedLogic = new PriceFeed( address(0x123), 0.01 ether);
 
         // Deploy the proxy contract with initialization
         PriceFeedProxy proxy = new PriceFeedProxy(
