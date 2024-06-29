@@ -8,13 +8,13 @@ import "../lib/openzeppelin-contracts-upgradeable/contracts/utils/math/SafeMathU
 import "../lib/openzeppelin-contracts-upgradeable/contracts/utils/cryptography/ECDSAUpgradeable.sol";
 import "../lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol";
 import "../lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol";
-import "./IPriceFeedReciever.sol";
+
 
 /**
  * @title PriceFeed
  * @dev This contract allows for the updating and requesting of asset prices, managed by a trusted signer.
  */
-abstract contract PriceFeed is Initializable, ReentrancyGuardUpgradeable, OwnableUpgradeable, PausableUpgradeable, UUPSUpgradeable {
+contract PriceFeed is Initializable, ReentrancyGuardUpgradeable, OwnableUpgradeable, PausableUpgradeable, UUPSUpgradeable {
     /// @dev Function to receive Ether. `msg.data` must be empty.
     receive() external payable {}
 
@@ -32,13 +32,13 @@ abstract contract PriceFeed is Initializable, ReentrancyGuardUpgradeable, Ownabl
     uint256 public feePerAsset;
 
     /// @notice Mapping of asset identifiers to their prices.
-    mapping(bytes32 => uint256) public prices;
+    mapping(bytes32 => uint256) private prices;
 
     /// @notice Mapping of asset identifiers to their decimals.
-    mapping(bytes32 => uint8) public decimals;
+    mapping(bytes32 => uint8) private decimals;
 
     /// @notice Maximum number of assets allowed per request.
-    uint256 public constant MAX_ASSETS_PER_REQUEST = 100;
+    uint256 private constant MAX_ASSETS_PER_REQUEST = 100;
 
     /// @notice Event emitted when an asset price is updated.
     /// @param asset The identifier of the asset.
@@ -88,12 +88,12 @@ abstract contract PriceFeed is Initializable, ReentrancyGuardUpgradeable, Ownabl
     }
 
     /// @notice Initializes the contract. Should be called only once.
-    function initialize() public initializer {
+    function initialize( uint256 _newFeePerAsset ) public initializer {
         __Ownable_init();
         __ReentrancyGuard_init();
         __UUPSUpgradeable_init();
         __Pausable_init();
-        trustedSigner = owner();
+        feePerAsset = _newFeePerAsset;
     }
 
     /**
@@ -119,29 +119,13 @@ abstract contract PriceFeed is Initializable, ReentrancyGuardUpgradeable, Ownabl
 
     /**
      * @notice Updates the prices of multiple assets.
-     * @dev The function verifies the signature of the trusted signer.
-     * @param _assets The array of asset identifiers.
-     * @param _decimals The array of decimals for each asset price.
-     * @param _prices The array of prices for each asset.
-     * @param _signature The signature of the trusted signer.
      */
     function updatePrice(
         bytes32[] calldata _assets,
         uint8[] calldata _decimals,
-        uint256[] calldata _prices,
-        bytes memory _signature
-    ) external whenNotPaused {
-        bytes32 messageHash = keccak256(
-            abi.encodePacked(_assets, _prices, _decimals)
-        );
-        bytes32 ethSignedMessageHash = ECDSAUpgradeable.toEthSignedMessageHash(
-            messageHash
-        );
-        address signer = ECDSAUpgradeable.recover(ethSignedMessageHash, _signature);
-
-        if (signer != trustedSigner)
-            revert InvalidSignature();
-
+        uint256[] calldata _prices
+    ) external onlyOwner whenNotPaused {
+    
         uint256 length = _assets.length;
 
         for (uint256 i = 0; i < length;) {
@@ -221,4 +205,7 @@ abstract contract PriceFeed is Initializable, ReentrancyGuardUpgradeable, Ownabl
         PausableUpgradeable._unpause();
         emit Unpaused(_msgSender());
     }
+
+
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 }

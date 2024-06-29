@@ -10,19 +10,20 @@ contract DeployPriceFeed is Script {
 
 
     function run() public {
-        // uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
-        // string memory rpcUrl = vm.envString("RPC_URL");
+        uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
+        
 
         // Start broadcasting transactions
-        vm.startBroadcast(0x49f841619c9ba5edaf2a5eb7aa8c146a5649b4b02aac462dccf3d02e990fb662);
+        vm.startBroadcast((deployerPrivateKey));
+        
 
         // Deploy the logic contract
-        PriceFeed priceFeedLogic = new PriceFeed(  0.01 ether);
+        PriceFeed priceFeedLogic = new PriceFeed() ; 
 
-        // Deploy the proxy contract with initialization
+        // Deploy the proxy contract wi th initialization
         PriceFeedProxy proxy = new PriceFeedProxy(
             address(priceFeedLogic),
-            abi.encodeWithSignature("initialize()")
+            abi.encodeWithSignature("initialize().selector" , 0.001 ether )
         );
 
         // Log the addresses of the deployed contracts
