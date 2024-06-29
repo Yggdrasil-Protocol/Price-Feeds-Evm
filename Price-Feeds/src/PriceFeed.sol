@@ -92,7 +92,8 @@ contract PriceFeed is ReentrancyGuard, Ownable {
         );
         address signer = ECDSA.recover(ethSignedMessageHash, _signature);
 
-        if (signer != trustedSigner) revert InvalidSignature();
+        if (signer != trustedSigner) 
+        revert InvalidSignature();
 
         uint256 length = _assets.length;
 
@@ -100,6 +101,7 @@ contract PriceFeed is ReentrancyGuard, Ownable {
             bytes32 asset = _assets[i];
             uint8 decimal = _decimals[i];
             uint256 price = _prices[i];
+            decimals[asset] = decimal;
             prices[asset] = price;
             emit PriceUpdated(asset, price, decimal);
 
@@ -117,7 +119,7 @@ contract PriceFeed is ReentrancyGuard, Ownable {
      */
     function requestPrices(
         bytes32[] calldata _assets,
-        function(uint256[] memory, uint8[] memory) external _callback
+        function(uint8[] memory , uint256[] memory) external _callback
     ) external payable nonReentrant {
         if (_assets.length > MAX_ASSETS_PER_REQUEST)
             revert TooManyAssets(_assets.length, MAX_ASSETS_PER_REQUEST);
@@ -126,8 +128,7 @@ contract PriceFeed is ReentrancyGuard, Ownable {
         uint256[] memory requestedPrices = new uint256[](_assets.length);
         uint256 fees = feePerAsset.mul(_assets.length);
 
-        if (msg.value < fees)
-            revert TransferFailed();
+        if (msg.value < fees) revert TransferFailed();
 
         for (uint256 i = 0; i < _assets.length; ) {
             bytes32 asset = _assets[i];
@@ -135,16 +136,16 @@ contract PriceFeed is ReentrancyGuard, Ownable {
             uint8 decimal = decimals[asset];
 
             if (price == 0) revert PriceNotAvailable(asset);
-            requestedPrices[i] = price;
             requestedDecimals[i] = decimal;
-
+            requestedPrices[i] = price;
+            
             unchecked {
                 i++;
             }
         }
 
-        _callback(requestedPrices, requestedDecimals);
-    }
+        _callback(requestedDecimals , requestedPrices);
+    } 
 
     /**
      * @notice Withdraws all Ether from the contract to the owner's address.

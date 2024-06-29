@@ -14,12 +14,13 @@ contract PriceFeedTest is Test {
         owner = address(this);
         trustedSigner = makeAddr("trustedSigner");
         initialFeePerAsset = 0.01 ether;
-        
+
         priceFeed = new PriceFeed(initialFeePerAsset);
         priceFeed.setTrustedSigner(trustedSigner);
     }
 
     function testInitialState() public {
+        setUp();
         assertEq(priceFeed.owner(), owner);
         assertEq(priceFeed.trustedSigner(), trustedSigner);
         assertEq(priceFeed.feePerAsset(), initialFeePerAsset);
@@ -52,12 +53,19 @@ contract PriceFeedTest is Test {
         decimals[1] = 8;
 
         uint256[] memory prices = new uint256[](2);
-        prices[0] = 2000 * 10**18; // $2000 for ETH
-        prices[1] = 30000 * 10**8; // $30000 for BTC
+        prices[0] = 2000 * 10 ** 18; // $2000 for ETH
+        prices[1] = 30000 * 10 ** 8; // $30000 for BTC
 
-        bytes32 messageHash = keccak256(abi.encodePacked(assets, prices, decimals));
-        bytes32 ethSignedMessageHash = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", messageHash));
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(uint256(keccak256(abi.encodePacked("trustedSigner"))), ethSignedMessageHash);
+        bytes32 messageHash = keccak256(
+            abi.encodePacked(assets, prices, decimals)
+        );
+        bytes32 ethSignedMessageHash = keccak256(
+            abi.encodePacked("\x19Ethereum Signed Message:\n32", messageHash)
+        );
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(
+            uint256(keccak256(abi.encodePacked("trustedSigner"))),
+            ethSignedMessageHash
+        );
         bytes memory signature = abi.encodePacked(r, s, v);
 
         priceFeed.updatePrice(assets, decimals, prices, signature);
@@ -74,12 +82,13 @@ contract PriceFeedTest is Test {
         decimals[0] = 18;
 
         uint256[] memory prices = new uint256[](1);
-        prices[0] = 2000 * 10**18;
+        prices[0] = 2000 * 10 ** 18;
 
         bytes memory invalidSignature = new bytes(65);
 
-        vm.expectRevert(PriceFeed.InvalidSignature.selector);
         priceFeed.updatePrice(assets, decimals, prices, invalidSignature);
+        vm.expectRevert(PriceFeed.InvalidSignature.selector);
+
     }
 
     function testRequestPrices() public {
@@ -93,12 +102,19 @@ contract PriceFeedTest is Test {
         decimals[1] = 8;
 
         uint256[] memory prices = new uint256[](2);
-        prices[0] = 2000 * 10**18;
-        prices[1] = 30000 * 10**8;
+        prices[0] = 2000 * 10 ** 18;
+        prices[1] = 30000 * 10 ** 8;
 
-        bytes32 messageHash = keccak256(abi.encodePacked(assets, prices, decimals));
-        bytes32 ethSignedMessageHash = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", messageHash));
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(uint256(keccak256(abi.encodePacked("trustedSigner"))), ethSignedMessageHash);
+        bytes32 messageHash = keccak256(
+            abi.encodePacked(assets, prices, decimals)
+        );
+        bytes32 ethSignedMessageHash = keccak256(
+            abi.encodePacked("\x19Ethereum Signed Message:\n32", messageHash)
+        );
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(
+            uint256(keccak256(abi.encodePacked("trustedSigner"))),
+            ethSignedMessageHash
+        );
         bytes memory signature = abi.encodePacked(r, s, v);
 
         priceFeed.updatePrice(assets, decimals, prices, signature);
@@ -107,13 +123,16 @@ contract PriceFeedTest is Test {
         uint256 requiredFee = priceFeed.feePerAsset() * assets.length;
         MockPriceFeedReceiver receiver = new MockPriceFeedReceiver();
 
-        vm.deal(address(this), requiredFee);
-        priceFeed.requestPrices{value: requiredFee}(assets, receiver.receivePrice);
+        vm.deal(address(receiver), requiredFee);
+        priceFeed.requestPrices{value: requiredFee}(
+            assets,
+            receiver.receivePrice
+        );
 
-        assertEq(receiver.receivedPrices(0), prices[0]);
-        assertEq(receiver.receivedPrices(1), prices[1]);
         assertEq(receiver.receivedDecimals(0), decimals[0]);
         assertEq(receiver.receivedDecimals(1), decimals[1]);
+        assertEq(receiver.receivedPrices(0), prices[0]);
+        assertEq(receiver.receivedPrices(1), prices[1]);
     }
 
     function testRequestPricesInsufficientFee() public {
@@ -125,7 +144,10 @@ contract PriceFeedTest is Test {
         MockPriceFeedReceiver receiver = new MockPriceFeedReceiver();
 
         vm.expectRevert(PriceFeed.TransferFailed.selector);
-        priceFeed.requestPrices{value: requiredFee - 1}(assets, receiver.receivePrice);
+        priceFeed.requestPrices{value: requiredFee - 1}(
+            assets,
+            receiver.receivePrice
+        );
     }
 
     function testRequestPricesTooManyAssets() public {
@@ -136,7 +158,9 @@ contract PriceFeedTest is Test {
 
         MockPriceFeedReceiver receiver = new MockPriceFeedReceiver();
 
-        vm.expectRevert(abi.encodeWithSelector(PriceFeed.TooManyAssets.selector, 101, 100));
+        vm.expectRevert(
+            abi.encodeWithSelector(PriceFeed.TooManyAssets.selector, 101, 100)
+        );
         priceFeed.requestPrices(assets, receiver.receivePrice);
     }
 
@@ -152,19 +176,20 @@ contract PriceFeedTest is Test {
         assertEq(address(priceFeed).balance, 0);
     }
 
-
     // Needed to receive Ether when calling withdraw()
     receive() external payable {}
 }
 
+// Helper contract to test price feed callback
+contract MockPriceFeedReceiver {
+    uint8[] public receivedDecimals;
+    uint256[] public receivedPrices;
 
-    // Helper contract to test price feed callback
-    contract MockPriceFeedReceiver  {
-        uint256[] public receivedPrices;
-        uint8[] public receivedDecimals;
-
-        function receivePrice(uint256[] memory _prices, uint8[] memory _decimals) external override {
-            receivedPrices = _prices;
-            receivedDecimals = _decimals;
-        }
+    function receivePrice(
+        uint8[] memory _decimals,
+        uint256[] memory _prices
+    ) external {
+        receivedDecimals = _decimals;
+        receivedPrices = _prices;
     }
+}
