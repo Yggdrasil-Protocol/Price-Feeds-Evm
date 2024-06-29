@@ -29,54 +29,14 @@ var (
 	_ = abi.ConvertType
 )
 
-// IPriceFeedPrice is an auto generated low-level Go binding around an user-defined struct.
-type IPriceFeedPrice struct {
-	Pair     string
-	Price    *big.Int
-	Decimals *big.Int
-}
-
-// IPriceFeedPriceResponse is an auto generated low-level Go binding around an user-defined struct.
-type IPriceFeedPriceResponse struct {
-	Prices   []*big.Int
-	Decimals []*big.Int
-}
-
-// IPriceFeedRequest is an auto generated low-level Go binding around an user-defined struct.
-type IPriceFeedRequest struct {
-	Pair []string
-}
-
 // PriceFeedContractMetaData contains all meta data concerning the PriceFeedContract contract.
 var PriceFeedContractMetaData = &bind.MetaData{
-	ABI: "[{\"inputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"previousAdmin\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"newAdmin\",\"type\":\"address\"}],\"name\":\"AdminChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"beacon\",\"type\":\"address\"}],\"name\":\"BeaconUpgraded\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint8\",\"name\":\"version\",\"type\":\"uint8\"}],\"name\":\"Initialized\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"previousOwner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"OwnershipTransferred\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"string\",\"name\":\"pair\",\"type\":\"string\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"price\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"decimals\",\"type\":\"uint256\"}],\"name\":\"PriceFeedPublished\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"requester\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"string[]\",\"name\":\"pairs\",\"type\":\"string[]\"},{\"indexed\":false,\"internalType\":\"uint256[]\",\"name\":\"prices\",\"type\":\"uint256[]\"},{\"indexed\":false,\"internalType\":\"uint256[]\",\"name\":\"decimals\",\"type\":\"uint256[]\"}],\"name\":\"PriceFeedRequested\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"string\",\"name\":\"pair\",\"type\":\"string\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"price\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"decimals\",\"type\":\"uint256\"}],\"name\":\"PriceFeedUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"implementation\",\"type\":\"address\"}],\"name\":\"Upgraded\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"pair\",\"type\":\"string\"}],\"name\":\"Feed\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"pair\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"price\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"decimals\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"initialize\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"proxiableUUID\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"renounceOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"string[]\",\"name\":\"pair\",\"type\":\"string[]\"}],\"internalType\":\"structIPriceFeed.Request\",\"name\":\"request\",\"type\":\"tuple\"}],\"name\":\"requestPriceFeed\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256[]\",\"name\":\"prices\",\"type\":\"uint256[]\"},{\"internalType\":\"uint256[]\",\"name\":\"decimals\",\"type\":\"uint256[]\"}],\"internalType\":\"structIPriceFeed.PriceResponse\",\"name\":\"response\",\"type\":\"tuple\"}],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"transferOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"string\",\"name\":\"pair\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"price\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"decimals\",\"type\":\"uint256\"}],\"internalType\":\"structIPriceFeed.Price\",\"name\":\"price\",\"type\":\"tuple\"}],\"name\":\"updatePriceFeed\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newImplementation\",\"type\":\"address\"}],\"name\":\"upgradeTo\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newImplementation\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"name\":\"upgradeToAndCall\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"}]",
-	Bin: "0x60a060405230608052348015610013575f80fd5b5061001c610021565b6100dd565b5f54610100900460ff161561008c5760405162461bcd60e51b815260206004820152602760248201527f496e697469616c697a61626c653a20636f6e747261637420697320696e697469604482015266616c697a696e6760c81b606482015260840160405180910390fd5b5f5460ff908116146100db575f805460ff191660ff9081179091556040519081527f7f26b83ff96e1f2b6a682f133852f6798a09c465da95921460cefb38474024989060200160405180910390a15b565b6080516119116101115f395f81816101d701528181610220015281816106080152818161064801526106d901526119115ff3fe60806040526004361061008f575f3560e01c80636d2fbecb116100575780636d2fbecb14610131578063715018a61461015f5780638129fc1c146101735780638da5cb5b14610187578063f2fde38b146101ae575f80fd5b80633659cfe61461009357806349c14ed9146100b45780634f1ef286146100dd57806352d1902d146100f057806368650ca214610112575b5f80fd5b34801561009e575f80fd5b506100b26100ad36600461112e565b6101cd565b005b6100c76100c2366004611229565b6102b3565b6040516100d49190611361565b60405180910390f35b6100b26100eb3660046113a2565b6105fe565b3480156100fb575f80fd5b506101046106cd565b6040519081526020016100d4565b34801561011d575f80fd5b506100b261012c3660046113ff565b61077e565b34801561013c575f80fd5b5061015061014b366004611435565b610922565b6040516100d493929190611494565b34801561016a575f80fd5b506100b26109d5565b34801561017e575f80fd5b506100b26109e8565b348015610192575f80fd5b5060c9546040516001600160a01b0390911681526020016100d4565b3480156101b9575f80fd5b506100b26101c836600461112e565b610afc565b6001600160a01b037f000000000000000000000000000000000000000000000000000000000000000016300361021e5760405162461bcd60e51b8152600401610215906114b8565b60405180910390fd5b7f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03166102665f80516020611895833981519152546001600160a01b031690565b6001600160a01b03161461028c5760405162461bcd60e51b815260040161021590611504565b61029581610b72565b604080515f808252602082019092526102b091839190610b7a565b50565b60408051808201909152606080825260208201526102cf610ce9565b81515161031e5760405162461bcd60e51b815260206004820152601d60248201527f5072696365466565643a204e6f207061697273207265717565737465640000006044820152606401610215565b64e8d4a510003410156103735760405162461bcd60e51b815260206004820152601d60248201527f5072696365466565643a20496e73756666696369656e742066756e64730000006044820152606401610215565b8151515f906001600160401b0381111561038f5761038f611147565b6040519080825280602002602001820160405280156103b8578160200160208202803683370190505b5090505f835f0151516001600160401b038111156103d8576103d8611147565b604051908082528060200260200182016040528015610401578160200160208202803683370190505b5090505f5b84515181101561059c575f60fb865f0151838151811061042857610428611550565b602002602001015160405161043d919061157b565b90815260200160405180910390206040518060600160405290815f8201805461046590611586565b80601f016020809104026020016040519081016040528092919081815260200182805461049190611586565b80156104dc5780601f106104b3576101008083540402835291602001916104dc565b820191905f5260205f20905b8154815290600101906020018083116104bf57829003601f168201915b505050505081526020016001820154815260200160028201548152505090505f815f0151511161054e5760405162461bcd60e51b815260206004820152601a60248201527f5072696365466565643a205072696365206e6f7420666f756e640000000000006044820152606401610215565b806020015184838151811061056557610565611550565b602002602001018181525050806040015183838151811061058857610588611550565b602090810291909101015250600101610406565b50835160405133917f21fb481b338df488246d581cca0377c59b67cc32b0ba179ac6d2c2975432aed1916105d49190869086906115be565b60405180910390a260408051808201909152918252602082015290506105f960018055565b919050565b6001600160a01b037f00000000000000000000000000000000000000000000000000000000000000001630036106465760405162461bcd60e51b8152600401610215906114b8565b7f00000000000000000000000000000000000000000000000000000000000000006001600160a01b031661068e5f80516020611895833981519152546001600160a01b031690565b6001600160a01b0316146106b45760405162461bcd60e51b815260040161021590611504565b6106bd82610b72565b6106c982826001610b7a565b5050565b5f306001600160a01b037f0000000000000000000000000000000000000000000000000000000000000000161461076c5760405162461bcd60e51b815260206004820152603860248201527f555550535570677261646561626c653a206d757374206e6f742062652063616c60448201527f6c6564207468726f7567682064656c656761746563616c6c00000000000000006064820152608401610215565b505f8051602061189583398151915290565b610786610d48565b5f610791828061163f565b9050116107e05760405162461bcd60e51b815260206004820152601f60248201527f5072696365466565643a20506169722063616e6e6f7420626520656d707479006044820152606401610215565b5f8160200135116108465760405162461bcd60e51b815260206004820152602a60248201527f5072696365466565643a205072696365206d7573742062652067726561746572604482015269207468616e207a65726f60b01b6064820152608401610215565b60128160400135111561089b5760405162461bcd60e51b815260206004820152601b60248201527f5072696365466565643a20496e76616c696420646563696d616c7300000000006044820152606401610215565b8060fb6108a8828061163f565b6040516108b6929190611688565b9081526040519081900360200190206108cf82826116e2565b507f3e51a618566783aa8f6e83296eb48686664aeb521acd6a7507a35fb5fd9ac74090506108fd828061163f565b8360200135846040013560405161091794939291906117e2565b60405180910390a150565b805160208183018101805160fb8252928201919093012091528054819061094890611586565b80601f016020809104026020016040519081016040528092919081815260200182805461097490611586565b80156109bf5780601f10610996576101008083540402835291602001916109bf565b820191905f5260205f20905b8154815290600101906020018083116109a257829003601f168201915b5050505050908060010154908060020154905083565b6109dd610d48565b6109e65f610da2565b565b5f54610100900460ff1615808015610a0657505f54600160ff909116105b80610a1f5750303b158015610a1f57505f5460ff166001145b610a825760405162461bcd60e51b815260206004820152602e60248201527f496e697469616c697a61626c653a20636f6e747261637420697320616c72656160448201526d191e481a5b9a5d1a585b1a5e995960921b6064820152608401610215565b5f805460ff191660011790558015610aa3575f805461ff0019166101001790555b610aab610df3565b610ab3610e21565b610abb610e4f565b80156102b0575f805461ff0019169055604051600181527f7f26b83ff96e1f2b6a682f133852f6798a09c465da95921460cefb384740249890602001610917565b610b04610d48565b6001600160a01b038116610b695760405162461bcd60e51b815260206004820152602660248201527f4f776e61626c653a206e6577206f776e657220697320746865207a65726f206160448201526564647265737360d01b6064820152608401610215565b6102b081610da2565b6102b0610d48565b7f4910fdfa16fed3260ed0e7147f7cc6da11a60208b5b9406d12a635614ffd91435460ff1615610bb257610bad83610e75565b505050565b826001600160a01b03166352d1902d6040518163ffffffff1660e01b8152600401602060405180830381865afa925050508015610c0c575060408051601f3d908101601f19168201909252610c0991810190611820565b60015b610c6f5760405162461bcd60e51b815260206004820152602e60248201527f45524331393637557067726164653a206e657720696d706c656d656e7461746960448201526d6f6e206973206e6f74205555505360901b6064820152608401610215565b5f805160206118958339815191528114610cdd5760405162461bcd60e51b815260206004820152602960248201527f45524331393637557067726164653a20756e737570706f727465642070726f786044820152681a58589b195555525160ba1b6064820152608401610215565b50610bad838383610f10565b600260015403610d3b5760405162461bcd60e51b815260206004820152601f60248201527f5265656e7472616e637947756172643a207265656e7472616e742063616c6c006044820152606401610215565b6002600155565b60018055565b60c9546001600160a01b031633146109e65760405162461bcd60e51b815260206004820181905260248201527f4f776e61626c653a2063616c6c6572206973206e6f7420746865206f776e65726044820152606401610215565b60c980546001600160a01b038381166001600160a01b0319831681179093556040519116919082907f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0905f90a35050565b5f54610100900460ff16610e195760405162461bcd60e51b815260040161021590611837565b6109e6610f3a565b5f54610100900460ff16610e475760405162461bcd60e51b815260040161021590611837565b6109e6610f69565b5f54610100900460ff166109e65760405162461bcd60e51b815260040161021590611837565b6001600160a01b0381163b610ee25760405162461bcd60e51b815260206004820152602d60248201527f455243313936373a206e657720696d706c656d656e746174696f6e206973206e60448201526c1bdd08184818dbdb9d1c9858dd609a1b6064820152608401610215565b5f8051602061189583398151915280546001600160a01b0319166001600160a01b0392909216919091179055565b610f1983610f8f565b5f82511180610f255750805b15610bad57610f348383610fce565b50505050565b5f54610100900460ff16610f605760405162461bcd60e51b815260040161021590611837565b6109e633610da2565b5f54610100900460ff16610d425760405162461bcd60e51b815260040161021590611837565b610f9881610e75565b6040516001600160a01b038216907fbc7cd75a20ee27fd9adebab32041f755214dbc6bffa90cc0225b39da2e5c2d3b905f90a250565b6060610ff383836040518060600160405280602781526020016118b560279139610ffa565b9392505050565b60605f80856001600160a01b031685604051611016919061157b565b5f60405180830381855af49150503d805f811461104e576040519150601f19603f3d011682016040523d82523d5f602084013e611053565b606091505b50915091506110648683838761106e565b9695505050505050565b606083156110dc5782515f036110d5576001600160a01b0385163b6110d55760405162461bcd60e51b815260206004820152601d60248201527f416464726573733a2063616c6c20746f206e6f6e2d636f6e74726163740000006044820152606401610215565b50816110e6565b6110e683836110ee565b949350505050565b8151156110fe5781518083602001fd5b8060405162461bcd60e51b81526004016102159190611882565b80356001600160a01b03811681146105f9575f80fd5b5f6020828403121561113e575f80fd5b610ff382611118565b634e487b7160e01b5f52604160045260245ffd5b604051602081016001600160401b038111828210171561117d5761117d611147565b60405290565b604051601f8201601f191681016001600160401b03811182821017156111ab576111ab611147565b604052919050565b5f806001600160401b038411156111cc576111cc611147565b50601f8301601f19166020016111e181611183565b9150508281528383830111156111f5575f80fd5b828260208301375f602084830101529392505050565b5f82601f83011261121a575f80fd5b610ff3838335602085016111b3565b5f60208284031215611239575f80fd5b81356001600160401b0381111561124e575f80fd5b82016020818503121561125f575f80fd5b61126761115b565b81356001600160401b0381111561127c575f80fd5b80830192505084601f830112611290575f80fd5b81356001600160401b038111156112a9576112a9611147565b8060051b6112b960208201611183565b918252602081850181019290810190888411156112d4575f80fd5b6020860192505b838310156113195782356001600160401b038111156112f8575f80fd5b6113078a6020838a010161120b565b835250602092830192909101906112db565b845250919695505050505050565b5f8151808452602084019350602083015f5b82811015611357578151865260209586019590910190600101611339565b5093949350505050565b602081525f82516040602084015261137c6060840182611327565b90506020840151601f198483030160408501526113998282611327565b95945050505050565b5f80604083850312156113b3575f80fd5b6113bc83611118565b915060208301356001600160401b038111156113d6575f80fd5b8301601f810185136113e6575f80fd5b6113f5858235602084016111b3565b9150509250929050565b5f6020828403121561140f575f80fd5b81356001600160401b03811115611424575f80fd5b820160608185031215610ff3575f80fd5b5f60208284031215611445575f80fd5b81356001600160401b0381111561145a575f80fd5b6110e68482850161120b565b5f81518084528060208401602086015e5f602082860101526020601f19601f83011685010191505092915050565b606081525f6114a66060830186611466565b60208301949094525060400152919050565b6020808252602c908201527f46756e6374696f6e206d7573742062652063616c6c6564207468726f7567682060408201526b19195b1959d85d1958d85b1b60a21b606082015260800190565b6020808252602c908201527f46756e6374696f6e206d7573742062652063616c6c6564207468726f7567682060408201526b6163746976652070726f787960a01b606082015260800190565b634e487b7160e01b5f52603260045260245ffd5b5f81518060208401855e5f93019283525090919050565b5f610ff38284611564565b600181811c9082168061159a57607f821691505b6020821081036115b857634e487b7160e01b5f52602260045260245ffd5b50919050565b5f606082016060835280865180835260808501915060808160051b8601019250602088015f5b8281101561161557607f19878603018452611600858351611466565b945060209384019391909101906001016115e4565b50505050828103602084015261162b8186611327565b905082810360408401526110648185611327565b5f808335601e19843603018112611654575f80fd5b8301803591506001600160401b0382111561166d575f80fd5b602001915036819003821315611681575f80fd5b9250929050565b818382375f9101908152919050565b601f821115610bad57805f5260205f20601f840160051c810160208510156116bc5750805b601f840160051c820191505b818110156116db575f81556001016116c8565b5050505050565b8135601e198336030181126116f5575f80fd5b820180356001600160401b038111801561170d575f80fd5b81360360208401131561171e575f80fd5b5f905050611736816117308554611586565b85611697565b5f601f82116001811461176a575f83156117535750838201602001355b5f19600385901b1c1916600184901b1785556117c6565b5f85815260208120601f198516915b8281101561179b57602085880181013583559485019460019092019101611779565b50848210156117ba575f1960f88660031b161c19602085880101351681555b505060018360011b0185555b5050505060208201356001820155604090910135600290910155565b60608152836060820152838560808301375f608085830101525f6080601f19601f870116830101905083602083015282604083015295945050505050565b5f60208284031215611830575f80fd5b5051919050565b6020808252602b908201527f496e697469616c697a61626c653a20636f6e7472616374206973206e6f74206960408201526a6e697469616c697a696e6760a81b606082015260800190565b602081525f610ff3602083018461146656fe360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc416464726573733a206c6f772d6c6576656c2064656c65676174652063616c6c206661696c6564a26469706673582212203a417be9a27d2801fb45fb5212dc47aded46496c438bfd05aadb8827db7ff5aa64736f6c634300081a0033",
+	ABI: "[{\"inputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"required\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"provided\",\"type\":\"uint256\"}],\"name\":\"InsufficientFee\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"InvalidSignature\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"asset\",\"type\":\"bytes32\"}],\"name\":\"PriceNotAvailable\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"provided\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"maximum\",\"type\":\"uint256\"}],\"name\":\"TooManyAssets\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"TransferFailed\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"ZeroAddress\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"previousAdmin\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"newAdmin\",\"type\":\"address\"}],\"name\":\"AdminChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"beacon\",\"type\":\"address\"}],\"name\":\"BeaconUpgraded\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"newFeePerAsset\",\"type\":\"uint256\"}],\"name\":\"FeeUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint8\",\"name\":\"version\",\"type\":\"uint8\"}],\"name\":\"Initialized\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"previousOwner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"OwnershipTransferred\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"Paused\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"asset\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"price\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint8\",\"name\":\"decimal\",\"type\":\"uint8\"}],\"name\":\"PriceUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"requester\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"bytes32[]\",\"name\":\"assets\",\"type\":\"bytes32[]\"}],\"name\":\"PricesRequested\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"newSigner\",\"type\":\"address\"}],\"name\":\"TrustedSignerUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"Unpaused\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"implementation\",\"type\":\"address\"}],\"name\":\"Upgraded\",\"type\":\"event\"},{\"stateMutability\":\"payable\",\"type\":\"fallback\"},{\"inputs\":[],\"name\":\"MAX_ASSETS_PER_REQUEST\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"name\":\"decimals\",\"outputs\":[{\"internalType\":\"uint8\",\"name\":\"\",\"type\":\"uint8\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"feePerAsset\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_newFeePerAsset\",\"type\":\"uint256\"}],\"name\":\"initialize\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"paused\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"name\":\"prices\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"proxiableUUID\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"renounceOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32[]\",\"name\":\"_assets\",\"type\":\"bytes32[]\"},{\"internalType\":\"function(uint8[],uint256[])external\",\"name\":\"_callback\",\"type\":\"function\"}],\"name\":\"requestPrices\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_newFeePerAsset\",\"type\":\"uint256\"}],\"name\":\"setFeePerAsset\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_newSigner\",\"type\":\"address\"}],\"name\":\"setTrustedSigner\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"transferOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"trustedSigner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32[]\",\"name\":\"_assets\",\"type\":\"bytes32[]\"},{\"internalType\":\"uint8[]\",\"name\":\"_decimals\",\"type\":\"uint8[]\"},{\"internalType\":\"uint256[]\",\"name\":\"_prices\",\"type\":\"uint256[]\"},{\"internalType\":\"bytes\",\"name\":\"_signature\",\"type\":\"bytes\"}],\"name\":\"updatePrice\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newImplementation\",\"type\":\"address\"}],\"name\":\"upgradeTo\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newImplementation\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"name\":\"upgradeToAndCall\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"withdraw\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"stateMutability\":\"payable\",\"type\":\"receive\"}]",
 }
 
 // PriceFeedContractABI is the input ABI used to generate the binding from.
 // Deprecated: Use PriceFeedContractMetaData.ABI instead.
 var PriceFeedContractABI = PriceFeedContractMetaData.ABI
-
-// PriceFeedContractBin is the compiled bytecode used for deploying new contracts.
-// Deprecated: Use PriceFeedContractMetaData.Bin instead.
-var PriceFeedContractBin = PriceFeedContractMetaData.Bin
-
-// DeployPriceFeedContract deploys a new Ethereum contract, binding an instance of PriceFeedContract to it.
-func DeployPriceFeedContract(auth *bind.TransactOpts, backend bind.ContractBackend) (common.Address, *types.Transaction, *PriceFeedContract, error) {
-	parsed, err := PriceFeedContractMetaData.GetAbi()
-	if err != nil {
-		return common.Address{}, nil, nil, err
-	}
-	if parsed == nil {
-		return common.Address{}, nil, nil, errors.New("GetABI returned nil")
-	}
-
-	address, tx, contract, err := bind.DeployContract(auth, *parsed, common.FromHex(PriceFeedContractBin), backend)
-	if err != nil {
-		return common.Address{}, nil, nil, err
-	}
-	return address, tx, &PriceFeedContract{PriceFeedContractCaller: PriceFeedContractCaller{contract: contract}, PriceFeedContractTransactor: PriceFeedContractTransactor{contract: contract}, PriceFeedContractFilterer: PriceFeedContractFilterer{contract: contract}}, nil
-}
 
 // PriceFeedContract is an auto generated Go binding around an Ethereum contract.
 type PriceFeedContract struct {
@@ -220,54 +180,97 @@ func (_PriceFeedContract *PriceFeedContractTransactorRaw) Transact(opts *bind.Tr
 	return _PriceFeedContract.Contract.contract.Transact(opts, method, params...)
 }
 
-// Feed is a free data retrieval call binding the contract method 0x6d2fbecb.
+// MAXASSETSPERREQUEST is a free data retrieval call binding the contract method 0x24b335cf.
 //
-// Solidity: function Feed(string pair) view returns(string pair, uint256 price, uint256 decimals)
-func (_PriceFeedContract *PriceFeedContractCaller) Feed(opts *bind.CallOpts, pair string) (struct {
-	Pair     string
-	Price    *big.Int
-	Decimals *big.Int
-}, error) {
+// Solidity: function MAX_ASSETS_PER_REQUEST() view returns(uint256)
+func (_PriceFeedContract *PriceFeedContractCaller) MAXASSETSPERREQUEST(opts *bind.CallOpts) (*big.Int, error) {
 	var out []interface{}
-	err := _PriceFeedContract.contract.Call(opts, &out, "Feed", pair)
+	err := _PriceFeedContract.contract.Call(opts, &out, "MAX_ASSETS_PER_REQUEST")
 
-	outstruct := new(struct {
-		Pair     string
-		Price    *big.Int
-		Decimals *big.Int
-	})
 	if err != nil {
-		return *outstruct, err
+		return *new(*big.Int), err
 	}
 
-	outstruct.Pair = *abi.ConvertType(out[0], new(string)).(*string)
-	outstruct.Price = *abi.ConvertType(out[1], new(*big.Int)).(**big.Int)
-	outstruct.Decimals = *abi.ConvertType(out[2], new(*big.Int)).(**big.Int)
+	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
 
-	return *outstruct, err
+	return out0, err
 
 }
 
-// Feed is a free data retrieval call binding the contract method 0x6d2fbecb.
+// MAXASSETSPERREQUEST is a free data retrieval call binding the contract method 0x24b335cf.
 //
-// Solidity: function Feed(string pair) view returns(string pair, uint256 price, uint256 decimals)
-func (_PriceFeedContract *PriceFeedContractSession) Feed(pair string) (struct {
-	Pair     string
-	Price    *big.Int
-	Decimals *big.Int
-}, error) {
-	return _PriceFeedContract.Contract.Feed(&_PriceFeedContract.CallOpts, pair)
+// Solidity: function MAX_ASSETS_PER_REQUEST() view returns(uint256)
+func (_PriceFeedContract *PriceFeedContractSession) MAXASSETSPERREQUEST() (*big.Int, error) {
+	return _PriceFeedContract.Contract.MAXASSETSPERREQUEST(&_PriceFeedContract.CallOpts)
 }
 
-// Feed is a free data retrieval call binding the contract method 0x6d2fbecb.
+// MAXASSETSPERREQUEST is a free data retrieval call binding the contract method 0x24b335cf.
 //
-// Solidity: function Feed(string pair) view returns(string pair, uint256 price, uint256 decimals)
-func (_PriceFeedContract *PriceFeedContractCallerSession) Feed(pair string) (struct {
-	Pair     string
-	Price    *big.Int
-	Decimals *big.Int
-}, error) {
-	return _PriceFeedContract.Contract.Feed(&_PriceFeedContract.CallOpts, pair)
+// Solidity: function MAX_ASSETS_PER_REQUEST() view returns(uint256)
+func (_PriceFeedContract *PriceFeedContractCallerSession) MAXASSETSPERREQUEST() (*big.Int, error) {
+	return _PriceFeedContract.Contract.MAXASSETSPERREQUEST(&_PriceFeedContract.CallOpts)
+}
+
+// Decimals is a free data retrieval call binding the contract method 0x5f18aa0c.
+//
+// Solidity: function decimals(bytes32 ) view returns(uint8)
+func (_PriceFeedContract *PriceFeedContractCaller) Decimals(opts *bind.CallOpts, arg0 [32]byte) (uint8, error) {
+	var out []interface{}
+	err := _PriceFeedContract.contract.Call(opts, &out, "decimals", arg0)
+
+	if err != nil {
+		return *new(uint8), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(uint8)).(*uint8)
+
+	return out0, err
+
+}
+
+// Decimals is a free data retrieval call binding the contract method 0x5f18aa0c.
+//
+// Solidity: function decimals(bytes32 ) view returns(uint8)
+func (_PriceFeedContract *PriceFeedContractSession) Decimals(arg0 [32]byte) (uint8, error) {
+	return _PriceFeedContract.Contract.Decimals(&_PriceFeedContract.CallOpts, arg0)
+}
+
+// Decimals is a free data retrieval call binding the contract method 0x5f18aa0c.
+//
+// Solidity: function decimals(bytes32 ) view returns(uint8)
+func (_PriceFeedContract *PriceFeedContractCallerSession) Decimals(arg0 [32]byte) (uint8, error) {
+	return _PriceFeedContract.Contract.Decimals(&_PriceFeedContract.CallOpts, arg0)
+}
+
+// FeePerAsset is a free data retrieval call binding the contract method 0x6eefe8fa.
+//
+// Solidity: function feePerAsset() view returns(uint256)
+func (_PriceFeedContract *PriceFeedContractCaller) FeePerAsset(opts *bind.CallOpts) (*big.Int, error) {
+	var out []interface{}
+	err := _PriceFeedContract.contract.Call(opts, &out, "feePerAsset")
+
+	if err != nil {
+		return *new(*big.Int), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+
+	return out0, err
+
+}
+
+// FeePerAsset is a free data retrieval call binding the contract method 0x6eefe8fa.
+//
+// Solidity: function feePerAsset() view returns(uint256)
+func (_PriceFeedContract *PriceFeedContractSession) FeePerAsset() (*big.Int, error) {
+	return _PriceFeedContract.Contract.FeePerAsset(&_PriceFeedContract.CallOpts)
+}
+
+// FeePerAsset is a free data retrieval call binding the contract method 0x6eefe8fa.
+//
+// Solidity: function feePerAsset() view returns(uint256)
+func (_PriceFeedContract *PriceFeedContractCallerSession) FeePerAsset() (*big.Int, error) {
+	return _PriceFeedContract.Contract.FeePerAsset(&_PriceFeedContract.CallOpts)
 }
 
 // Owner is a free data retrieval call binding the contract method 0x8da5cb5b.
@@ -301,6 +304,68 @@ func (_PriceFeedContract *PriceFeedContractCallerSession) Owner() (common.Addres
 	return _PriceFeedContract.Contract.Owner(&_PriceFeedContract.CallOpts)
 }
 
+// Paused is a free data retrieval call binding the contract method 0x5c975abb.
+//
+// Solidity: function paused() view returns(bool)
+func (_PriceFeedContract *PriceFeedContractCaller) Paused(opts *bind.CallOpts) (bool, error) {
+	var out []interface{}
+	err := _PriceFeedContract.contract.Call(opts, &out, "paused")
+
+	if err != nil {
+		return *new(bool), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(bool)).(*bool)
+
+	return out0, err
+
+}
+
+// Paused is a free data retrieval call binding the contract method 0x5c975abb.
+//
+// Solidity: function paused() view returns(bool)
+func (_PriceFeedContract *PriceFeedContractSession) Paused() (bool, error) {
+	return _PriceFeedContract.Contract.Paused(&_PriceFeedContract.CallOpts)
+}
+
+// Paused is a free data retrieval call binding the contract method 0x5c975abb.
+//
+// Solidity: function paused() view returns(bool)
+func (_PriceFeedContract *PriceFeedContractCallerSession) Paused() (bool, error) {
+	return _PriceFeedContract.Contract.Paused(&_PriceFeedContract.CallOpts)
+}
+
+// Prices is a free data retrieval call binding the contract method 0x60846bc6.
+//
+// Solidity: function prices(bytes32 ) view returns(uint256)
+func (_PriceFeedContract *PriceFeedContractCaller) Prices(opts *bind.CallOpts, arg0 [32]byte) (*big.Int, error) {
+	var out []interface{}
+	err := _PriceFeedContract.contract.Call(opts, &out, "prices", arg0)
+
+	if err != nil {
+		return *new(*big.Int), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+
+	return out0, err
+
+}
+
+// Prices is a free data retrieval call binding the contract method 0x60846bc6.
+//
+// Solidity: function prices(bytes32 ) view returns(uint256)
+func (_PriceFeedContract *PriceFeedContractSession) Prices(arg0 [32]byte) (*big.Int, error) {
+	return _PriceFeedContract.Contract.Prices(&_PriceFeedContract.CallOpts, arg0)
+}
+
+// Prices is a free data retrieval call binding the contract method 0x60846bc6.
+//
+// Solidity: function prices(bytes32 ) view returns(uint256)
+func (_PriceFeedContract *PriceFeedContractCallerSession) Prices(arg0 [32]byte) (*big.Int, error) {
+	return _PriceFeedContract.Contract.Prices(&_PriceFeedContract.CallOpts, arg0)
+}
+
 // ProxiableUUID is a free data retrieval call binding the contract method 0x52d1902d.
 //
 // Solidity: function proxiableUUID() view returns(bytes32)
@@ -332,25 +397,56 @@ func (_PriceFeedContract *PriceFeedContractCallerSession) ProxiableUUID() ([32]b
 	return _PriceFeedContract.Contract.ProxiableUUID(&_PriceFeedContract.CallOpts)
 }
 
-// Initialize is a paid mutator transaction binding the contract method 0x8129fc1c.
+// TrustedSigner is a free data retrieval call binding the contract method 0xf74d5480.
 //
-// Solidity: function initialize() returns()
-func (_PriceFeedContract *PriceFeedContractTransactor) Initialize(opts *bind.TransactOpts) (*types.Transaction, error) {
-	return _PriceFeedContract.contract.Transact(opts, "initialize")
+// Solidity: function trustedSigner() view returns(address)
+func (_PriceFeedContract *PriceFeedContractCaller) TrustedSigner(opts *bind.CallOpts) (common.Address, error) {
+	var out []interface{}
+	err := _PriceFeedContract.contract.Call(opts, &out, "trustedSigner")
+
+	if err != nil {
+		return *new(common.Address), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(common.Address)).(*common.Address)
+
+	return out0, err
+
 }
 
-// Initialize is a paid mutator transaction binding the contract method 0x8129fc1c.
+// TrustedSigner is a free data retrieval call binding the contract method 0xf74d5480.
 //
-// Solidity: function initialize() returns()
-func (_PriceFeedContract *PriceFeedContractSession) Initialize() (*types.Transaction, error) {
-	return _PriceFeedContract.Contract.Initialize(&_PriceFeedContract.TransactOpts)
+// Solidity: function trustedSigner() view returns(address)
+func (_PriceFeedContract *PriceFeedContractSession) TrustedSigner() (common.Address, error) {
+	return _PriceFeedContract.Contract.TrustedSigner(&_PriceFeedContract.CallOpts)
 }
 
-// Initialize is a paid mutator transaction binding the contract method 0x8129fc1c.
+// TrustedSigner is a free data retrieval call binding the contract method 0xf74d5480.
 //
-// Solidity: function initialize() returns()
-func (_PriceFeedContract *PriceFeedContractTransactorSession) Initialize() (*types.Transaction, error) {
-	return _PriceFeedContract.Contract.Initialize(&_PriceFeedContract.TransactOpts)
+// Solidity: function trustedSigner() view returns(address)
+func (_PriceFeedContract *PriceFeedContractCallerSession) TrustedSigner() (common.Address, error) {
+	return _PriceFeedContract.Contract.TrustedSigner(&_PriceFeedContract.CallOpts)
+}
+
+// Initialize is a paid mutator transaction binding the contract method 0xfe4b84df.
+//
+// Solidity: function initialize(uint256 _newFeePerAsset) returns()
+func (_PriceFeedContract *PriceFeedContractTransactor) Initialize(opts *bind.TransactOpts, _newFeePerAsset *big.Int) (*types.Transaction, error) {
+	return _PriceFeedContract.contract.Transact(opts, "initialize", _newFeePerAsset)
+}
+
+// Initialize is a paid mutator transaction binding the contract method 0xfe4b84df.
+//
+// Solidity: function initialize(uint256 _newFeePerAsset) returns()
+func (_PriceFeedContract *PriceFeedContractSession) Initialize(_newFeePerAsset *big.Int) (*types.Transaction, error) {
+	return _PriceFeedContract.Contract.Initialize(&_PriceFeedContract.TransactOpts, _newFeePerAsset)
+}
+
+// Initialize is a paid mutator transaction binding the contract method 0xfe4b84df.
+//
+// Solidity: function initialize(uint256 _newFeePerAsset) returns()
+func (_PriceFeedContract *PriceFeedContractTransactorSession) Initialize(_newFeePerAsset *big.Int) (*types.Transaction, error) {
+	return _PriceFeedContract.Contract.Initialize(&_PriceFeedContract.TransactOpts, _newFeePerAsset)
 }
 
 // RenounceOwnership is a paid mutator transaction binding the contract method 0x715018a6.
@@ -374,25 +470,67 @@ func (_PriceFeedContract *PriceFeedContractTransactorSession) RenounceOwnership(
 	return _PriceFeedContract.Contract.RenounceOwnership(&_PriceFeedContract.TransactOpts)
 }
 
-// RequestPriceFeed is a paid mutator transaction binding the contract method 0x49c14ed9.
+// RequestPrices is a paid mutator transaction binding the contract method 0xb2ad4c2e.
 //
-// Solidity: function requestPriceFeed((string[]) request) payable returns((uint256[],uint256[]) response)
-func (_PriceFeedContract *PriceFeedContractTransactor) RequestPriceFeed(opts *bind.TransactOpts, request IPriceFeedRequest) (*types.Transaction, error) {
-	return _PriceFeedContract.contract.Transact(opts, "requestPriceFeed", request)
+// Solidity: function requestPrices(bytes32[] _assets, function _callback) payable returns()
+func (_PriceFeedContract *PriceFeedContractTransactor) RequestPrices(opts *bind.TransactOpts, _assets [][32]byte, _callback [24]byte) (*types.Transaction, error) {
+	return _PriceFeedContract.contract.Transact(opts, "requestPrices", _assets, _callback)
 }
 
-// RequestPriceFeed is a paid mutator transaction binding the contract method 0x49c14ed9.
+// RequestPrices is a paid mutator transaction binding the contract method 0xb2ad4c2e.
 //
-// Solidity: function requestPriceFeed((string[]) request) payable returns((uint256[],uint256[]) response)
-func (_PriceFeedContract *PriceFeedContractSession) RequestPriceFeed(request IPriceFeedRequest) (*types.Transaction, error) {
-	return _PriceFeedContract.Contract.RequestPriceFeed(&_PriceFeedContract.TransactOpts, request)
+// Solidity: function requestPrices(bytes32[] _assets, function _callback) payable returns()
+func (_PriceFeedContract *PriceFeedContractSession) RequestPrices(_assets [][32]byte, _callback [24]byte) (*types.Transaction, error) {
+	return _PriceFeedContract.Contract.RequestPrices(&_PriceFeedContract.TransactOpts, _assets, _callback)
 }
 
-// RequestPriceFeed is a paid mutator transaction binding the contract method 0x49c14ed9.
+// RequestPrices is a paid mutator transaction binding the contract method 0xb2ad4c2e.
 //
-// Solidity: function requestPriceFeed((string[]) request) payable returns((uint256[],uint256[]) response)
-func (_PriceFeedContract *PriceFeedContractTransactorSession) RequestPriceFeed(request IPriceFeedRequest) (*types.Transaction, error) {
-	return _PriceFeedContract.Contract.RequestPriceFeed(&_PriceFeedContract.TransactOpts, request)
+// Solidity: function requestPrices(bytes32[] _assets, function _callback) payable returns()
+func (_PriceFeedContract *PriceFeedContractTransactorSession) RequestPrices(_assets [][32]byte, _callback [24]byte) (*types.Transaction, error) {
+	return _PriceFeedContract.Contract.RequestPrices(&_PriceFeedContract.TransactOpts, _assets, _callback)
+}
+
+// SetFeePerAsset is a paid mutator transaction binding the contract method 0x6f1518f8.
+//
+// Solidity: function setFeePerAsset(uint256 _newFeePerAsset) returns()
+func (_PriceFeedContract *PriceFeedContractTransactor) SetFeePerAsset(opts *bind.TransactOpts, _newFeePerAsset *big.Int) (*types.Transaction, error) {
+	return _PriceFeedContract.contract.Transact(opts, "setFeePerAsset", _newFeePerAsset)
+}
+
+// SetFeePerAsset is a paid mutator transaction binding the contract method 0x6f1518f8.
+//
+// Solidity: function setFeePerAsset(uint256 _newFeePerAsset) returns()
+func (_PriceFeedContract *PriceFeedContractSession) SetFeePerAsset(_newFeePerAsset *big.Int) (*types.Transaction, error) {
+	return _PriceFeedContract.Contract.SetFeePerAsset(&_PriceFeedContract.TransactOpts, _newFeePerAsset)
+}
+
+// SetFeePerAsset is a paid mutator transaction binding the contract method 0x6f1518f8.
+//
+// Solidity: function setFeePerAsset(uint256 _newFeePerAsset) returns()
+func (_PriceFeedContract *PriceFeedContractTransactorSession) SetFeePerAsset(_newFeePerAsset *big.Int) (*types.Transaction, error) {
+	return _PriceFeedContract.Contract.SetFeePerAsset(&_PriceFeedContract.TransactOpts, _newFeePerAsset)
+}
+
+// SetTrustedSigner is a paid mutator transaction binding the contract method 0x56a1c701.
+//
+// Solidity: function setTrustedSigner(address _newSigner) returns()
+func (_PriceFeedContract *PriceFeedContractTransactor) SetTrustedSigner(opts *bind.TransactOpts, _newSigner common.Address) (*types.Transaction, error) {
+	return _PriceFeedContract.contract.Transact(opts, "setTrustedSigner", _newSigner)
+}
+
+// SetTrustedSigner is a paid mutator transaction binding the contract method 0x56a1c701.
+//
+// Solidity: function setTrustedSigner(address _newSigner) returns()
+func (_PriceFeedContract *PriceFeedContractSession) SetTrustedSigner(_newSigner common.Address) (*types.Transaction, error) {
+	return _PriceFeedContract.Contract.SetTrustedSigner(&_PriceFeedContract.TransactOpts, _newSigner)
+}
+
+// SetTrustedSigner is a paid mutator transaction binding the contract method 0x56a1c701.
+//
+// Solidity: function setTrustedSigner(address _newSigner) returns()
+func (_PriceFeedContract *PriceFeedContractTransactorSession) SetTrustedSigner(_newSigner common.Address) (*types.Transaction, error) {
+	return _PriceFeedContract.Contract.SetTrustedSigner(&_PriceFeedContract.TransactOpts, _newSigner)
 }
 
 // TransferOwnership is a paid mutator transaction binding the contract method 0xf2fde38b.
@@ -416,25 +554,25 @@ func (_PriceFeedContract *PriceFeedContractTransactorSession) TransferOwnership(
 	return _PriceFeedContract.Contract.TransferOwnership(&_PriceFeedContract.TransactOpts, newOwner)
 }
 
-// UpdatePriceFeed is a paid mutator transaction binding the contract method 0x68650ca2.
+// UpdatePrice is a paid mutator transaction binding the contract method 0x6fe0a68d.
 //
-// Solidity: function updatePriceFeed((string,uint256,uint256) price) returns()
-func (_PriceFeedContract *PriceFeedContractTransactor) UpdatePriceFeed(opts *bind.TransactOpts, price IPriceFeedPrice) (*types.Transaction, error) {
-	return _PriceFeedContract.contract.Transact(opts, "updatePriceFeed", price)
+// Solidity: function updatePrice(bytes32[] _assets, uint8[] _decimals, uint256[] _prices, bytes _signature) returns()
+func (_PriceFeedContract *PriceFeedContractTransactor) UpdatePrice(opts *bind.TransactOpts, _assets [][32]byte, _decimals []uint8, _prices []*big.Int, _signature []byte) (*types.Transaction, error) {
+	return _PriceFeedContract.contract.Transact(opts, "updatePrice", _assets, _decimals, _prices, _signature)
 }
 
-// UpdatePriceFeed is a paid mutator transaction binding the contract method 0x68650ca2.
+// UpdatePrice is a paid mutator transaction binding the contract method 0x6fe0a68d.
 //
-// Solidity: function updatePriceFeed((string,uint256,uint256) price) returns()
-func (_PriceFeedContract *PriceFeedContractSession) UpdatePriceFeed(price IPriceFeedPrice) (*types.Transaction, error) {
-	return _PriceFeedContract.Contract.UpdatePriceFeed(&_PriceFeedContract.TransactOpts, price)
+// Solidity: function updatePrice(bytes32[] _assets, uint8[] _decimals, uint256[] _prices, bytes _signature) returns()
+func (_PriceFeedContract *PriceFeedContractSession) UpdatePrice(_assets [][32]byte, _decimals []uint8, _prices []*big.Int, _signature []byte) (*types.Transaction, error) {
+	return _PriceFeedContract.Contract.UpdatePrice(&_PriceFeedContract.TransactOpts, _assets, _decimals, _prices, _signature)
 }
 
-// UpdatePriceFeed is a paid mutator transaction binding the contract method 0x68650ca2.
+// UpdatePrice is a paid mutator transaction binding the contract method 0x6fe0a68d.
 //
-// Solidity: function updatePriceFeed((string,uint256,uint256) price) returns()
-func (_PriceFeedContract *PriceFeedContractTransactorSession) UpdatePriceFeed(price IPriceFeedPrice) (*types.Transaction, error) {
-	return _PriceFeedContract.Contract.UpdatePriceFeed(&_PriceFeedContract.TransactOpts, price)
+// Solidity: function updatePrice(bytes32[] _assets, uint8[] _decimals, uint256[] _prices, bytes _signature) returns()
+func (_PriceFeedContract *PriceFeedContractTransactorSession) UpdatePrice(_assets [][32]byte, _decimals []uint8, _prices []*big.Int, _signature []byte) (*types.Transaction, error) {
+	return _PriceFeedContract.Contract.UpdatePrice(&_PriceFeedContract.TransactOpts, _assets, _decimals, _prices, _signature)
 }
 
 // UpgradeTo is a paid mutator transaction binding the contract method 0x3659cfe6.
@@ -477,6 +615,69 @@ func (_PriceFeedContract *PriceFeedContractSession) UpgradeToAndCall(newImplemen
 // Solidity: function upgradeToAndCall(address newImplementation, bytes data) payable returns()
 func (_PriceFeedContract *PriceFeedContractTransactorSession) UpgradeToAndCall(newImplementation common.Address, data []byte) (*types.Transaction, error) {
 	return _PriceFeedContract.Contract.UpgradeToAndCall(&_PriceFeedContract.TransactOpts, newImplementation, data)
+}
+
+// Withdraw is a paid mutator transaction binding the contract method 0x3ccfd60b.
+//
+// Solidity: function withdraw() returns()
+func (_PriceFeedContract *PriceFeedContractTransactor) Withdraw(opts *bind.TransactOpts) (*types.Transaction, error) {
+	return _PriceFeedContract.contract.Transact(opts, "withdraw")
+}
+
+// Withdraw is a paid mutator transaction binding the contract method 0x3ccfd60b.
+//
+// Solidity: function withdraw() returns()
+func (_PriceFeedContract *PriceFeedContractSession) Withdraw() (*types.Transaction, error) {
+	return _PriceFeedContract.Contract.Withdraw(&_PriceFeedContract.TransactOpts)
+}
+
+// Withdraw is a paid mutator transaction binding the contract method 0x3ccfd60b.
+//
+// Solidity: function withdraw() returns()
+func (_PriceFeedContract *PriceFeedContractTransactorSession) Withdraw() (*types.Transaction, error) {
+	return _PriceFeedContract.Contract.Withdraw(&_PriceFeedContract.TransactOpts)
+}
+
+// Fallback is a paid mutator transaction binding the contract fallback function.
+//
+// Solidity: fallback() payable returns()
+func (_PriceFeedContract *PriceFeedContractTransactor) Fallback(opts *bind.TransactOpts, calldata []byte) (*types.Transaction, error) {
+	return _PriceFeedContract.contract.RawTransact(opts, calldata)
+}
+
+// Fallback is a paid mutator transaction binding the contract fallback function.
+//
+// Solidity: fallback() payable returns()
+func (_PriceFeedContract *PriceFeedContractSession) Fallback(calldata []byte) (*types.Transaction, error) {
+	return _PriceFeedContract.Contract.Fallback(&_PriceFeedContract.TransactOpts, calldata)
+}
+
+// Fallback is a paid mutator transaction binding the contract fallback function.
+//
+// Solidity: fallback() payable returns()
+func (_PriceFeedContract *PriceFeedContractTransactorSession) Fallback(calldata []byte) (*types.Transaction, error) {
+	return _PriceFeedContract.Contract.Fallback(&_PriceFeedContract.TransactOpts, calldata)
+}
+
+// Receive is a paid mutator transaction binding the contract receive function.
+//
+// Solidity: receive() payable returns()
+func (_PriceFeedContract *PriceFeedContractTransactor) Receive(opts *bind.TransactOpts) (*types.Transaction, error) {
+	return _PriceFeedContract.contract.RawTransact(opts, nil) // calldata is disallowed for receive function
+}
+
+// Receive is a paid mutator transaction binding the contract receive function.
+//
+// Solidity: receive() payable returns()
+func (_PriceFeedContract *PriceFeedContractSession) Receive() (*types.Transaction, error) {
+	return _PriceFeedContract.Contract.Receive(&_PriceFeedContract.TransactOpts)
+}
+
+// Receive is a paid mutator transaction binding the contract receive function.
+//
+// Solidity: receive() payable returns()
+func (_PriceFeedContract *PriceFeedContractTransactorSession) Receive() (*types.Transaction, error) {
+	return _PriceFeedContract.Contract.Receive(&_PriceFeedContract.TransactOpts)
 }
 
 // PriceFeedContractAdminChangedIterator is returned from FilterAdminChanged and is used to iterate over the raw logs and unpacked data for AdminChanged events raised by the PriceFeedContract contract.
@@ -752,6 +953,140 @@ func (_PriceFeedContract *PriceFeedContractFilterer) WatchBeaconUpgraded(opts *b
 func (_PriceFeedContract *PriceFeedContractFilterer) ParseBeaconUpgraded(log types.Log) (*PriceFeedContractBeaconUpgraded, error) {
 	event := new(PriceFeedContractBeaconUpgraded)
 	if err := _PriceFeedContract.contract.UnpackLog(event, "BeaconUpgraded", log); err != nil {
+		return nil, err
+	}
+	event.Raw = log
+	return event, nil
+}
+
+// PriceFeedContractFeeUpdatedIterator is returned from FilterFeeUpdated and is used to iterate over the raw logs and unpacked data for FeeUpdated events raised by the PriceFeedContract contract.
+type PriceFeedContractFeeUpdatedIterator struct {
+	Event *PriceFeedContractFeeUpdated // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *PriceFeedContractFeeUpdatedIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(PriceFeedContractFeeUpdated)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(PriceFeedContractFeeUpdated)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *PriceFeedContractFeeUpdatedIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *PriceFeedContractFeeUpdatedIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// PriceFeedContractFeeUpdated represents a FeeUpdated event raised by the PriceFeedContract contract.
+type PriceFeedContractFeeUpdated struct {
+	NewFeePerAsset *big.Int
+	Raw            types.Log // Blockchain specific contextual infos
+}
+
+// FilterFeeUpdated is a free log retrieval operation binding the contract event 0x8c4d35e54a3f2ef1134138fd8ea3daee6a3c89e10d2665996babdf70261e2c76.
+//
+// Solidity: event FeeUpdated(uint256 newFeePerAsset)
+func (_PriceFeedContract *PriceFeedContractFilterer) FilterFeeUpdated(opts *bind.FilterOpts) (*PriceFeedContractFeeUpdatedIterator, error) {
+
+	logs, sub, err := _PriceFeedContract.contract.FilterLogs(opts, "FeeUpdated")
+	if err != nil {
+		return nil, err
+	}
+	return &PriceFeedContractFeeUpdatedIterator{contract: _PriceFeedContract.contract, event: "FeeUpdated", logs: logs, sub: sub}, nil
+}
+
+// WatchFeeUpdated is a free log subscription operation binding the contract event 0x8c4d35e54a3f2ef1134138fd8ea3daee6a3c89e10d2665996babdf70261e2c76.
+//
+// Solidity: event FeeUpdated(uint256 newFeePerAsset)
+func (_PriceFeedContract *PriceFeedContractFilterer) WatchFeeUpdated(opts *bind.WatchOpts, sink chan<- *PriceFeedContractFeeUpdated) (event.Subscription, error) {
+
+	logs, sub, err := _PriceFeedContract.contract.WatchLogs(opts, "FeeUpdated")
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(PriceFeedContractFeeUpdated)
+				if err := _PriceFeedContract.contract.UnpackLog(event, "FeeUpdated", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
+}
+
+// ParseFeeUpdated is a log parse operation binding the contract event 0x8c4d35e54a3f2ef1134138fd8ea3daee6a3c89e10d2665996babdf70261e2c76.
+//
+// Solidity: event FeeUpdated(uint256 newFeePerAsset)
+func (_PriceFeedContract *PriceFeedContractFilterer) ParseFeeUpdated(log types.Log) (*PriceFeedContractFeeUpdated, error) {
+	event := new(PriceFeedContractFeeUpdated)
+	if err := _PriceFeedContract.contract.UnpackLog(event, "FeeUpdated", log); err != nil {
 		return nil, err
 	}
 	event.Raw = log
@@ -1045,9 +1380,9 @@ func (_PriceFeedContract *PriceFeedContractFilterer) ParseOwnershipTransferred(l
 	return event, nil
 }
 
-// PriceFeedContractPriceFeedPublishedIterator is returned from FilterPriceFeedPublished and is used to iterate over the raw logs and unpacked data for PriceFeedPublished events raised by the PriceFeedContract contract.
-type PriceFeedContractPriceFeedPublishedIterator struct {
-	Event *PriceFeedContractPriceFeedPublished // Event containing the contract specifics and raw log
+// PriceFeedContractPausedIterator is returned from FilterPaused and is used to iterate over the raw logs and unpacked data for Paused events raised by the PriceFeedContract contract.
+type PriceFeedContractPausedIterator struct {
+	Event *PriceFeedContractPaused // Event containing the contract specifics and raw log
 
 	contract *bind.BoundContract // Generic contract to use for unpacking event data
 	event    string              // Event name to use for unpacking event data
@@ -1061,7 +1396,7 @@ type PriceFeedContractPriceFeedPublishedIterator struct {
 // Next advances the iterator to the subsequent event, returning whether there
 // are any more events found. In case of a retrieval or parsing error, false is
 // returned and Error() can be queried for the exact failure.
-func (it *PriceFeedContractPriceFeedPublishedIterator) Next() bool {
+func (it *PriceFeedContractPausedIterator) Next() bool {
 	// If the iterator failed, stop iterating
 	if it.fail != nil {
 		return false
@@ -1070,7 +1405,7 @@ func (it *PriceFeedContractPriceFeedPublishedIterator) Next() bool {
 	if it.done {
 		select {
 		case log := <-it.logs:
-			it.Event = new(PriceFeedContractPriceFeedPublished)
+			it.Event = new(PriceFeedContractPaused)
 			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
 				it.fail = err
 				return false
@@ -1085,7 +1420,7 @@ func (it *PriceFeedContractPriceFeedPublishedIterator) Next() bool {
 	// Iterator still in progress, wait for either a data or an error event
 	select {
 	case log := <-it.logs:
-		it.Event = new(PriceFeedContractPriceFeedPublished)
+		it.Event = new(PriceFeedContractPaused)
 		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
 			it.fail = err
 			return false
@@ -1101,43 +1436,41 @@ func (it *PriceFeedContractPriceFeedPublishedIterator) Next() bool {
 }
 
 // Error returns any retrieval or parsing error occurred during filtering.
-func (it *PriceFeedContractPriceFeedPublishedIterator) Error() error {
+func (it *PriceFeedContractPausedIterator) Error() error {
 	return it.fail
 }
 
 // Close terminates the iteration process, releasing any pending underlying
 // resources.
-func (it *PriceFeedContractPriceFeedPublishedIterator) Close() error {
+func (it *PriceFeedContractPausedIterator) Close() error {
 	it.sub.Unsubscribe()
 	return nil
 }
 
-// PriceFeedContractPriceFeedPublished represents a PriceFeedPublished event raised by the PriceFeedContract contract.
-type PriceFeedContractPriceFeedPublished struct {
-	Pair     string
-	Price    *big.Int
-	Decimals *big.Int
-	Raw      types.Log // Blockchain specific contextual infos
+// PriceFeedContractPaused represents a Paused event raised by the PriceFeedContract contract.
+type PriceFeedContractPaused struct {
+	Account common.Address
+	Raw     types.Log // Blockchain specific contextual infos
 }
 
-// FilterPriceFeedPublished is a free log retrieval operation binding the contract event 0xf39d648fb8a9ac771561ab993f279c7eb13f1beb860d61c9cb3e787564d06803.
+// FilterPaused is a free log retrieval operation binding the contract event 0x62e78cea01bee320cd4e420270b5ea74000d11b0c9f74754ebdbfc544b05a258.
 //
-// Solidity: event PriceFeedPublished(string pair, uint256 price, uint256 decimals)
-func (_PriceFeedContract *PriceFeedContractFilterer) FilterPriceFeedPublished(opts *bind.FilterOpts) (*PriceFeedContractPriceFeedPublishedIterator, error) {
+// Solidity: event Paused(address account)
+func (_PriceFeedContract *PriceFeedContractFilterer) FilterPaused(opts *bind.FilterOpts) (*PriceFeedContractPausedIterator, error) {
 
-	logs, sub, err := _PriceFeedContract.contract.FilterLogs(opts, "PriceFeedPublished")
+	logs, sub, err := _PriceFeedContract.contract.FilterLogs(opts, "Paused")
 	if err != nil {
 		return nil, err
 	}
-	return &PriceFeedContractPriceFeedPublishedIterator{contract: _PriceFeedContract.contract, event: "PriceFeedPublished", logs: logs, sub: sub}, nil
+	return &PriceFeedContractPausedIterator{contract: _PriceFeedContract.contract, event: "Paused", logs: logs, sub: sub}, nil
 }
 
-// WatchPriceFeedPublished is a free log subscription operation binding the contract event 0xf39d648fb8a9ac771561ab993f279c7eb13f1beb860d61c9cb3e787564d06803.
+// WatchPaused is a free log subscription operation binding the contract event 0x62e78cea01bee320cd4e420270b5ea74000d11b0c9f74754ebdbfc544b05a258.
 //
-// Solidity: event PriceFeedPublished(string pair, uint256 price, uint256 decimals)
-func (_PriceFeedContract *PriceFeedContractFilterer) WatchPriceFeedPublished(opts *bind.WatchOpts, sink chan<- *PriceFeedContractPriceFeedPublished) (event.Subscription, error) {
+// Solidity: event Paused(address account)
+func (_PriceFeedContract *PriceFeedContractFilterer) WatchPaused(opts *bind.WatchOpts, sink chan<- *PriceFeedContractPaused) (event.Subscription, error) {
 
-	logs, sub, err := _PriceFeedContract.contract.WatchLogs(opts, "PriceFeedPublished")
+	logs, sub, err := _PriceFeedContract.contract.WatchLogs(opts, "Paused")
 	if err != nil {
 		return nil, err
 	}
@@ -1147,8 +1480,8 @@ func (_PriceFeedContract *PriceFeedContractFilterer) WatchPriceFeedPublished(opt
 			select {
 			case log := <-logs:
 				// New log arrived, parse the event and forward to the user
-				event := new(PriceFeedContractPriceFeedPublished)
-				if err := _PriceFeedContract.contract.UnpackLog(event, "PriceFeedPublished", log); err != nil {
+				event := new(PriceFeedContractPaused)
+				if err := _PriceFeedContract.contract.UnpackLog(event, "Paused", log); err != nil {
 					return err
 				}
 				event.Raw = log
@@ -1169,21 +1502,21 @@ func (_PriceFeedContract *PriceFeedContractFilterer) WatchPriceFeedPublished(opt
 	}), nil
 }
 
-// ParsePriceFeedPublished is a log parse operation binding the contract event 0xf39d648fb8a9ac771561ab993f279c7eb13f1beb860d61c9cb3e787564d06803.
+// ParsePaused is a log parse operation binding the contract event 0x62e78cea01bee320cd4e420270b5ea74000d11b0c9f74754ebdbfc544b05a258.
 //
-// Solidity: event PriceFeedPublished(string pair, uint256 price, uint256 decimals)
-func (_PriceFeedContract *PriceFeedContractFilterer) ParsePriceFeedPublished(log types.Log) (*PriceFeedContractPriceFeedPublished, error) {
-	event := new(PriceFeedContractPriceFeedPublished)
-	if err := _PriceFeedContract.contract.UnpackLog(event, "PriceFeedPublished", log); err != nil {
+// Solidity: event Paused(address account)
+func (_PriceFeedContract *PriceFeedContractFilterer) ParsePaused(log types.Log) (*PriceFeedContractPaused, error) {
+	event := new(PriceFeedContractPaused)
+	if err := _PriceFeedContract.contract.UnpackLog(event, "Paused", log); err != nil {
 		return nil, err
 	}
 	event.Raw = log
 	return event, nil
 }
 
-// PriceFeedContractPriceFeedRequestedIterator is returned from FilterPriceFeedRequested and is used to iterate over the raw logs and unpacked data for PriceFeedRequested events raised by the PriceFeedContract contract.
-type PriceFeedContractPriceFeedRequestedIterator struct {
-	Event *PriceFeedContractPriceFeedRequested // Event containing the contract specifics and raw log
+// PriceFeedContractPriceUpdatedIterator is returned from FilterPriceUpdated and is used to iterate over the raw logs and unpacked data for PriceUpdated events raised by the PriceFeedContract contract.
+type PriceFeedContractPriceUpdatedIterator struct {
+	Event *PriceFeedContractPriceUpdated // Event containing the contract specifics and raw log
 
 	contract *bind.BoundContract // Generic contract to use for unpacking event data
 	event    string              // Event name to use for unpacking event data
@@ -1197,7 +1530,7 @@ type PriceFeedContractPriceFeedRequestedIterator struct {
 // Next advances the iterator to the subsequent event, returning whether there
 // are any more events found. In case of a retrieval or parsing error, false is
 // returned and Error() can be queried for the exact failure.
-func (it *PriceFeedContractPriceFeedRequestedIterator) Next() bool {
+func (it *PriceFeedContractPriceUpdatedIterator) Next() bool {
 	// If the iterator failed, stop iterating
 	if it.fail != nil {
 		return false
@@ -1206,7 +1539,7 @@ func (it *PriceFeedContractPriceFeedRequestedIterator) Next() bool {
 	if it.done {
 		select {
 		case log := <-it.logs:
-			it.Event = new(PriceFeedContractPriceFeedRequested)
+			it.Event = new(PriceFeedContractPriceUpdated)
 			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
 				it.fail = err
 				return false
@@ -1221,7 +1554,7 @@ func (it *PriceFeedContractPriceFeedRequestedIterator) Next() bool {
 	// Iterator still in progress, wait for either a data or an error event
 	select {
 	case log := <-it.logs:
-		it.Event = new(PriceFeedContractPriceFeedRequested)
+		it.Event = new(PriceFeedContractPriceUpdated)
 		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
 			it.fail = err
 			return false
@@ -1237,54 +1570,198 @@ func (it *PriceFeedContractPriceFeedRequestedIterator) Next() bool {
 }
 
 // Error returns any retrieval or parsing error occurred during filtering.
-func (it *PriceFeedContractPriceFeedRequestedIterator) Error() error {
+func (it *PriceFeedContractPriceUpdatedIterator) Error() error {
 	return it.fail
 }
 
 // Close terminates the iteration process, releasing any pending underlying
 // resources.
-func (it *PriceFeedContractPriceFeedRequestedIterator) Close() error {
+func (it *PriceFeedContractPriceUpdatedIterator) Close() error {
 	it.sub.Unsubscribe()
 	return nil
 }
 
-// PriceFeedContractPriceFeedRequested represents a PriceFeedRequested event raised by the PriceFeedContract contract.
-type PriceFeedContractPriceFeedRequested struct {
+// PriceFeedContractPriceUpdated represents a PriceUpdated event raised by the PriceFeedContract contract.
+type PriceFeedContractPriceUpdated struct {
+	Asset   [32]byte
+	Price   *big.Int
+	Decimal uint8
+	Raw     types.Log // Blockchain specific contextual infos
+}
+
+// FilterPriceUpdated is a free log retrieval operation binding the contract event 0x8c62fe32113aae6ed87fdea7c7da35e9d2b99790bf4f577b0869fe9bbe12d58f.
+//
+// Solidity: event PriceUpdated(bytes32 indexed asset, uint256 price, uint8 decimal)
+func (_PriceFeedContract *PriceFeedContractFilterer) FilterPriceUpdated(opts *bind.FilterOpts, asset [][32]byte) (*PriceFeedContractPriceUpdatedIterator, error) {
+
+	var assetRule []interface{}
+	for _, assetItem := range asset {
+		assetRule = append(assetRule, assetItem)
+	}
+
+	logs, sub, err := _PriceFeedContract.contract.FilterLogs(opts, "PriceUpdated", assetRule)
+	if err != nil {
+		return nil, err
+	}
+	return &PriceFeedContractPriceUpdatedIterator{contract: _PriceFeedContract.contract, event: "PriceUpdated", logs: logs, sub: sub}, nil
+}
+
+// WatchPriceUpdated is a free log subscription operation binding the contract event 0x8c62fe32113aae6ed87fdea7c7da35e9d2b99790bf4f577b0869fe9bbe12d58f.
+//
+// Solidity: event PriceUpdated(bytes32 indexed asset, uint256 price, uint8 decimal)
+func (_PriceFeedContract *PriceFeedContractFilterer) WatchPriceUpdated(opts *bind.WatchOpts, sink chan<- *PriceFeedContractPriceUpdated, asset [][32]byte) (event.Subscription, error) {
+
+	var assetRule []interface{}
+	for _, assetItem := range asset {
+		assetRule = append(assetRule, assetItem)
+	}
+
+	logs, sub, err := _PriceFeedContract.contract.WatchLogs(opts, "PriceUpdated", assetRule)
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(PriceFeedContractPriceUpdated)
+				if err := _PriceFeedContract.contract.UnpackLog(event, "PriceUpdated", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
+}
+
+// ParsePriceUpdated is a log parse operation binding the contract event 0x8c62fe32113aae6ed87fdea7c7da35e9d2b99790bf4f577b0869fe9bbe12d58f.
+//
+// Solidity: event PriceUpdated(bytes32 indexed asset, uint256 price, uint8 decimal)
+func (_PriceFeedContract *PriceFeedContractFilterer) ParsePriceUpdated(log types.Log) (*PriceFeedContractPriceUpdated, error) {
+	event := new(PriceFeedContractPriceUpdated)
+	if err := _PriceFeedContract.contract.UnpackLog(event, "PriceUpdated", log); err != nil {
+		return nil, err
+	}
+	event.Raw = log
+	return event, nil
+}
+
+// PriceFeedContractPricesRequestedIterator is returned from FilterPricesRequested and is used to iterate over the raw logs and unpacked data for PricesRequested events raised by the PriceFeedContract contract.
+type PriceFeedContractPricesRequestedIterator struct {
+	Event *PriceFeedContractPricesRequested // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *PriceFeedContractPricesRequestedIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(PriceFeedContractPricesRequested)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(PriceFeedContractPricesRequested)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *PriceFeedContractPricesRequestedIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *PriceFeedContractPricesRequestedIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// PriceFeedContractPricesRequested represents a PricesRequested event raised by the PriceFeedContract contract.
+type PriceFeedContractPricesRequested struct {
 	Requester common.Address
-	Pairs     []string
-	Prices    []*big.Int
-	Decimals  []*big.Int
+	Assets    [][32]byte
 	Raw       types.Log // Blockchain specific contextual infos
 }
 
-// FilterPriceFeedRequested is a free log retrieval operation binding the contract event 0x21fb481b338df488246d581cca0377c59b67cc32b0ba179ac6d2c2975432aed1.
+// FilterPricesRequested is a free log retrieval operation binding the contract event 0xaa33eb4cfd36e0ee1d8d133a19a2620fb088f12c0141f8bc7e2d48c220be343f.
 //
-// Solidity: event PriceFeedRequested(address indexed requester, string[] pairs, uint256[] prices, uint256[] decimals)
-func (_PriceFeedContract *PriceFeedContractFilterer) FilterPriceFeedRequested(opts *bind.FilterOpts, requester []common.Address) (*PriceFeedContractPriceFeedRequestedIterator, error) {
+// Solidity: event PricesRequested(address indexed requester, bytes32[] assets)
+func (_PriceFeedContract *PriceFeedContractFilterer) FilterPricesRequested(opts *bind.FilterOpts, requester []common.Address) (*PriceFeedContractPricesRequestedIterator, error) {
 
 	var requesterRule []interface{}
 	for _, requesterItem := range requester {
 		requesterRule = append(requesterRule, requesterItem)
 	}
 
-	logs, sub, err := _PriceFeedContract.contract.FilterLogs(opts, "PriceFeedRequested", requesterRule)
+	logs, sub, err := _PriceFeedContract.contract.FilterLogs(opts, "PricesRequested", requesterRule)
 	if err != nil {
 		return nil, err
 	}
-	return &PriceFeedContractPriceFeedRequestedIterator{contract: _PriceFeedContract.contract, event: "PriceFeedRequested", logs: logs, sub: sub}, nil
+	return &PriceFeedContractPricesRequestedIterator{contract: _PriceFeedContract.contract, event: "PricesRequested", logs: logs, sub: sub}, nil
 }
 
-// WatchPriceFeedRequested is a free log subscription operation binding the contract event 0x21fb481b338df488246d581cca0377c59b67cc32b0ba179ac6d2c2975432aed1.
+// WatchPricesRequested is a free log subscription operation binding the contract event 0xaa33eb4cfd36e0ee1d8d133a19a2620fb088f12c0141f8bc7e2d48c220be343f.
 //
-// Solidity: event PriceFeedRequested(address indexed requester, string[] pairs, uint256[] prices, uint256[] decimals)
-func (_PriceFeedContract *PriceFeedContractFilterer) WatchPriceFeedRequested(opts *bind.WatchOpts, sink chan<- *PriceFeedContractPriceFeedRequested, requester []common.Address) (event.Subscription, error) {
+// Solidity: event PricesRequested(address indexed requester, bytes32[] assets)
+func (_PriceFeedContract *PriceFeedContractFilterer) WatchPricesRequested(opts *bind.WatchOpts, sink chan<- *PriceFeedContractPricesRequested, requester []common.Address) (event.Subscription, error) {
 
 	var requesterRule []interface{}
 	for _, requesterItem := range requester {
 		requesterRule = append(requesterRule, requesterItem)
 	}
 
-	logs, sub, err := _PriceFeedContract.contract.WatchLogs(opts, "PriceFeedRequested", requesterRule)
+	logs, sub, err := _PriceFeedContract.contract.WatchLogs(opts, "PricesRequested", requesterRule)
 	if err != nil {
 		return nil, err
 	}
@@ -1294,8 +1771,8 @@ func (_PriceFeedContract *PriceFeedContractFilterer) WatchPriceFeedRequested(opt
 			select {
 			case log := <-logs:
 				// New log arrived, parse the event and forward to the user
-				event := new(PriceFeedContractPriceFeedRequested)
-				if err := _PriceFeedContract.contract.UnpackLog(event, "PriceFeedRequested", log); err != nil {
+				event := new(PriceFeedContractPricesRequested)
+				if err := _PriceFeedContract.contract.UnpackLog(event, "PricesRequested", log); err != nil {
 					return err
 				}
 				event.Raw = log
@@ -1316,21 +1793,21 @@ func (_PriceFeedContract *PriceFeedContractFilterer) WatchPriceFeedRequested(opt
 	}), nil
 }
 
-// ParsePriceFeedRequested is a log parse operation binding the contract event 0x21fb481b338df488246d581cca0377c59b67cc32b0ba179ac6d2c2975432aed1.
+// ParsePricesRequested is a log parse operation binding the contract event 0xaa33eb4cfd36e0ee1d8d133a19a2620fb088f12c0141f8bc7e2d48c220be343f.
 //
-// Solidity: event PriceFeedRequested(address indexed requester, string[] pairs, uint256[] prices, uint256[] decimals)
-func (_PriceFeedContract *PriceFeedContractFilterer) ParsePriceFeedRequested(log types.Log) (*PriceFeedContractPriceFeedRequested, error) {
-	event := new(PriceFeedContractPriceFeedRequested)
-	if err := _PriceFeedContract.contract.UnpackLog(event, "PriceFeedRequested", log); err != nil {
+// Solidity: event PricesRequested(address indexed requester, bytes32[] assets)
+func (_PriceFeedContract *PriceFeedContractFilterer) ParsePricesRequested(log types.Log) (*PriceFeedContractPricesRequested, error) {
+	event := new(PriceFeedContractPricesRequested)
+	if err := _PriceFeedContract.contract.UnpackLog(event, "PricesRequested", log); err != nil {
 		return nil, err
 	}
 	event.Raw = log
 	return event, nil
 }
 
-// PriceFeedContractPriceFeedUpdatedIterator is returned from FilterPriceFeedUpdated and is used to iterate over the raw logs and unpacked data for PriceFeedUpdated events raised by the PriceFeedContract contract.
-type PriceFeedContractPriceFeedUpdatedIterator struct {
-	Event *PriceFeedContractPriceFeedUpdated // Event containing the contract specifics and raw log
+// PriceFeedContractTrustedSignerUpdatedIterator is returned from FilterTrustedSignerUpdated and is used to iterate over the raw logs and unpacked data for TrustedSignerUpdated events raised by the PriceFeedContract contract.
+type PriceFeedContractTrustedSignerUpdatedIterator struct {
+	Event *PriceFeedContractTrustedSignerUpdated // Event containing the contract specifics and raw log
 
 	contract *bind.BoundContract // Generic contract to use for unpacking event data
 	event    string              // Event name to use for unpacking event data
@@ -1344,7 +1821,7 @@ type PriceFeedContractPriceFeedUpdatedIterator struct {
 // Next advances the iterator to the subsequent event, returning whether there
 // are any more events found. In case of a retrieval or parsing error, false is
 // returned and Error() can be queried for the exact failure.
-func (it *PriceFeedContractPriceFeedUpdatedIterator) Next() bool {
+func (it *PriceFeedContractTrustedSignerUpdatedIterator) Next() bool {
 	// If the iterator failed, stop iterating
 	if it.fail != nil {
 		return false
@@ -1353,7 +1830,7 @@ func (it *PriceFeedContractPriceFeedUpdatedIterator) Next() bool {
 	if it.done {
 		select {
 		case log := <-it.logs:
-			it.Event = new(PriceFeedContractPriceFeedUpdated)
+			it.Event = new(PriceFeedContractTrustedSignerUpdated)
 			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
 				it.fail = err
 				return false
@@ -1368,7 +1845,7 @@ func (it *PriceFeedContractPriceFeedUpdatedIterator) Next() bool {
 	// Iterator still in progress, wait for either a data or an error event
 	select {
 	case log := <-it.logs:
-		it.Event = new(PriceFeedContractPriceFeedUpdated)
+		it.Event = new(PriceFeedContractTrustedSignerUpdated)
 		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
 			it.fail = err
 			return false
@@ -1384,43 +1861,41 @@ func (it *PriceFeedContractPriceFeedUpdatedIterator) Next() bool {
 }
 
 // Error returns any retrieval or parsing error occurred during filtering.
-func (it *PriceFeedContractPriceFeedUpdatedIterator) Error() error {
+func (it *PriceFeedContractTrustedSignerUpdatedIterator) Error() error {
 	return it.fail
 }
 
 // Close terminates the iteration process, releasing any pending underlying
 // resources.
-func (it *PriceFeedContractPriceFeedUpdatedIterator) Close() error {
+func (it *PriceFeedContractTrustedSignerUpdatedIterator) Close() error {
 	it.sub.Unsubscribe()
 	return nil
 }
 
-// PriceFeedContractPriceFeedUpdated represents a PriceFeedUpdated event raised by the PriceFeedContract contract.
-type PriceFeedContractPriceFeedUpdated struct {
-	Pair     string
-	Price    *big.Int
-	Decimals *big.Int
-	Raw      types.Log // Blockchain specific contextual infos
+// PriceFeedContractTrustedSignerUpdated represents a TrustedSignerUpdated event raised by the PriceFeedContract contract.
+type PriceFeedContractTrustedSignerUpdated struct {
+	NewSigner common.Address
+	Raw       types.Log // Blockchain specific contextual infos
 }
 
-// FilterPriceFeedUpdated is a free log retrieval operation binding the contract event 0x3e51a618566783aa8f6e83296eb48686664aeb521acd6a7507a35fb5fd9ac740.
+// FilterTrustedSignerUpdated is a free log retrieval operation binding the contract event 0xced828023e9f94aa2a4373d4254f9bab903a9b34b822ab716d6c3688b2d0e17b.
 //
-// Solidity: event PriceFeedUpdated(string pair, uint256 price, uint256 decimals)
-func (_PriceFeedContract *PriceFeedContractFilterer) FilterPriceFeedUpdated(opts *bind.FilterOpts) (*PriceFeedContractPriceFeedUpdatedIterator, error) {
+// Solidity: event TrustedSignerUpdated(address newSigner)
+func (_PriceFeedContract *PriceFeedContractFilterer) FilterTrustedSignerUpdated(opts *bind.FilterOpts) (*PriceFeedContractTrustedSignerUpdatedIterator, error) {
 
-	logs, sub, err := _PriceFeedContract.contract.FilterLogs(opts, "PriceFeedUpdated")
+	logs, sub, err := _PriceFeedContract.contract.FilterLogs(opts, "TrustedSignerUpdated")
 	if err != nil {
 		return nil, err
 	}
-	return &PriceFeedContractPriceFeedUpdatedIterator{contract: _PriceFeedContract.contract, event: "PriceFeedUpdated", logs: logs, sub: sub}, nil
+	return &PriceFeedContractTrustedSignerUpdatedIterator{contract: _PriceFeedContract.contract, event: "TrustedSignerUpdated", logs: logs, sub: sub}, nil
 }
 
-// WatchPriceFeedUpdated is a free log subscription operation binding the contract event 0x3e51a618566783aa8f6e83296eb48686664aeb521acd6a7507a35fb5fd9ac740.
+// WatchTrustedSignerUpdated is a free log subscription operation binding the contract event 0xced828023e9f94aa2a4373d4254f9bab903a9b34b822ab716d6c3688b2d0e17b.
 //
-// Solidity: event PriceFeedUpdated(string pair, uint256 price, uint256 decimals)
-func (_PriceFeedContract *PriceFeedContractFilterer) WatchPriceFeedUpdated(opts *bind.WatchOpts, sink chan<- *PriceFeedContractPriceFeedUpdated) (event.Subscription, error) {
+// Solidity: event TrustedSignerUpdated(address newSigner)
+func (_PriceFeedContract *PriceFeedContractFilterer) WatchTrustedSignerUpdated(opts *bind.WatchOpts, sink chan<- *PriceFeedContractTrustedSignerUpdated) (event.Subscription, error) {
 
-	logs, sub, err := _PriceFeedContract.contract.WatchLogs(opts, "PriceFeedUpdated")
+	logs, sub, err := _PriceFeedContract.contract.WatchLogs(opts, "TrustedSignerUpdated")
 	if err != nil {
 		return nil, err
 	}
@@ -1430,8 +1905,8 @@ func (_PriceFeedContract *PriceFeedContractFilterer) WatchPriceFeedUpdated(opts 
 			select {
 			case log := <-logs:
 				// New log arrived, parse the event and forward to the user
-				event := new(PriceFeedContractPriceFeedUpdated)
-				if err := _PriceFeedContract.contract.UnpackLog(event, "PriceFeedUpdated", log); err != nil {
+				event := new(PriceFeedContractTrustedSignerUpdated)
+				if err := _PriceFeedContract.contract.UnpackLog(event, "TrustedSignerUpdated", log); err != nil {
 					return err
 				}
 				event.Raw = log
@@ -1452,12 +1927,146 @@ func (_PriceFeedContract *PriceFeedContractFilterer) WatchPriceFeedUpdated(opts 
 	}), nil
 }
 
-// ParsePriceFeedUpdated is a log parse operation binding the contract event 0x3e51a618566783aa8f6e83296eb48686664aeb521acd6a7507a35fb5fd9ac740.
+// ParseTrustedSignerUpdated is a log parse operation binding the contract event 0xced828023e9f94aa2a4373d4254f9bab903a9b34b822ab716d6c3688b2d0e17b.
 //
-// Solidity: event PriceFeedUpdated(string pair, uint256 price, uint256 decimals)
-func (_PriceFeedContract *PriceFeedContractFilterer) ParsePriceFeedUpdated(log types.Log) (*PriceFeedContractPriceFeedUpdated, error) {
-	event := new(PriceFeedContractPriceFeedUpdated)
-	if err := _PriceFeedContract.contract.UnpackLog(event, "PriceFeedUpdated", log); err != nil {
+// Solidity: event TrustedSignerUpdated(address newSigner)
+func (_PriceFeedContract *PriceFeedContractFilterer) ParseTrustedSignerUpdated(log types.Log) (*PriceFeedContractTrustedSignerUpdated, error) {
+	event := new(PriceFeedContractTrustedSignerUpdated)
+	if err := _PriceFeedContract.contract.UnpackLog(event, "TrustedSignerUpdated", log); err != nil {
+		return nil, err
+	}
+	event.Raw = log
+	return event, nil
+}
+
+// PriceFeedContractUnpausedIterator is returned from FilterUnpaused and is used to iterate over the raw logs and unpacked data for Unpaused events raised by the PriceFeedContract contract.
+type PriceFeedContractUnpausedIterator struct {
+	Event *PriceFeedContractUnpaused // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *PriceFeedContractUnpausedIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(PriceFeedContractUnpaused)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(PriceFeedContractUnpaused)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *PriceFeedContractUnpausedIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *PriceFeedContractUnpausedIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// PriceFeedContractUnpaused represents a Unpaused event raised by the PriceFeedContract contract.
+type PriceFeedContractUnpaused struct {
+	Account common.Address
+	Raw     types.Log // Blockchain specific contextual infos
+}
+
+// FilterUnpaused is a free log retrieval operation binding the contract event 0x5db9ee0a495bf2e6ff9c91a7834c1ba4fdd244a5e8aa4e537bd38aeae4b073aa.
+//
+// Solidity: event Unpaused(address account)
+func (_PriceFeedContract *PriceFeedContractFilterer) FilterUnpaused(opts *bind.FilterOpts) (*PriceFeedContractUnpausedIterator, error) {
+
+	logs, sub, err := _PriceFeedContract.contract.FilterLogs(opts, "Unpaused")
+	if err != nil {
+		return nil, err
+	}
+	return &PriceFeedContractUnpausedIterator{contract: _PriceFeedContract.contract, event: "Unpaused", logs: logs, sub: sub}, nil
+}
+
+// WatchUnpaused is a free log subscription operation binding the contract event 0x5db9ee0a495bf2e6ff9c91a7834c1ba4fdd244a5e8aa4e537bd38aeae4b073aa.
+//
+// Solidity: event Unpaused(address account)
+func (_PriceFeedContract *PriceFeedContractFilterer) WatchUnpaused(opts *bind.WatchOpts, sink chan<- *PriceFeedContractUnpaused) (event.Subscription, error) {
+
+	logs, sub, err := _PriceFeedContract.contract.WatchLogs(opts, "Unpaused")
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(PriceFeedContractUnpaused)
+				if err := _PriceFeedContract.contract.UnpackLog(event, "Unpaused", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
+}
+
+// ParseUnpaused is a log parse operation binding the contract event 0x5db9ee0a495bf2e6ff9c91a7834c1ba4fdd244a5e8aa4e537bd38aeae4b073aa.
+//
+// Solidity: event Unpaused(address account)
+func (_PriceFeedContract *PriceFeedContractFilterer) ParseUnpaused(log types.Log) (*PriceFeedContractUnpaused, error) {
+	event := new(PriceFeedContractUnpaused)
+	if err := _PriceFeedContract.contract.UnpackLog(event, "Unpaused", log); err != nil {
 		return nil, err
 	}
 	event.Raw = log
