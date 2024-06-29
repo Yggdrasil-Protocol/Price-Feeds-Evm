@@ -19,8 +19,7 @@ contract PriceFeedTest is Test {
         priceFeed.setTrustedSigner(trustedSigner);
     }
 
-    function testInitialState() public {
-        setUp();
+    function testInitialState() public view {
         assertEq(priceFeed.owner(), owner);
         assertEq(priceFeed.trustedSigner(), trustedSigner);
         assertEq(priceFeed.feePerAsset(), initialFeePerAsset);

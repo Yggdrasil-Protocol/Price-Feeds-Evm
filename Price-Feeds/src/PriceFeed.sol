@@ -1,52 +1,99 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "../lib/openzeppelin-contracts/contracts/utils/cryptography/ECDSA.sol";
-import "../lib/openzeppelin-contracts/contracts/security/ReentrancyGuard.sol";
-import "../lib/openzeppelin-contracts/contracts/access/Ownable.sol";
-import "../lib/openzeppelin-contracts/contracts/utils/math/SafeMath.sol";
+import "../lib/openzeppelin-contracts-upgradeable/contracts/security/ReentrancyGuardUpgradeable.sol";
+import "../lib/openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol";
+import "../lib/openzeppelin-contracts-upgradeable/contracts/security/PausableUpgradeable.sol";
+import "../lib/openzeppelin-contracts-upgradeable/contracts/utils/math/SafeMathUpgradeable.sol";
+import "../lib/openzeppelin-contracts-upgradeable/contracts/utils/cryptography/ECDSAUpgradeable.sol";
+import "../lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol";
+import "../lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol";
 import "./IPriceFeedReciever.sol";
 
 /**
  * @title PriceFeed
  * @dev This contract allows for the updating and requesting of asset prices, managed by a trusted signer.
  */
-contract PriceFeed is ReentrancyGuard, Ownable {
-    // Function to receive Ether. msg.data must be empty
+abstract contract PriceFeed is Initializable, ReentrancyGuardUpgradeable, OwnableUpgradeable, PausableUpgradeable, UUPSUpgradeable {
+    /// @dev Function to receive Ether. `msg.data` must be empty.
     receive() external payable {}
 
-    // Fallback function is called when msg.data is not empty
+    /// @dev Fallback function is called when `msg.data` is not empty.
     fallback() external payable {}
 
-    using ECDSA for bytes32;
-    using SafeMath for uint256;
+    using ECDSAUpgradeable for bytes32;
+    using SafeMathUpgradeable for uint256;
+    using SafeMathUpgradeable for uint8;
 
+    /// @notice Address of the trusted signer for price updates.
     address public trustedSigner;
+
+    /// @notice Fee charged per asset request.
     uint256 public feePerAsset;
+
+    /// @notice Mapping of asset identifiers to their prices.
     mapping(bytes32 => uint256) public prices;
+
+    /// @notice Mapping of asset identifiers to their decimals.
     mapping(bytes32 => uint8) public decimals;
 
+    /// @notice Maximum number of assets allowed per request.
     uint256 public constant MAX_ASSETS_PER_REQUEST = 100;
 
+    /// @notice Event emitted when an asset price is updated.
+    /// @param asset The identifier of the asset.
+    /// @param price The new price of the asset.
+    /// @param decimal The number of decimals of the asset price.
     event PriceUpdated(bytes32 indexed asset, uint256 price, uint8 decimal);
+
+    /// @notice Event emitted when prices are requested.
+    /// @param requester The address of the requester.
+    /// @param assets The array of asset identifiers.
     event PricesRequested(address indexed requester, bytes32[] assets);
+
+    /// @notice Event emitted when the fee per asset is updated.
+    /// @param newFeePerAsset The new fee per asset.
     event FeeUpdated(uint256 newFeePerAsset);
+
+    /// @notice Event emitted when the trusted signer is updated.
+    /// @param newSigner The address of the new trusted signer.
     event TrustedSignerUpdated(address newSigner);
 
+    /// @dev Error thrown when the signature is invalid.
     error InvalidSignature();
+
+    /// @dev Error thrown when the provided fee is insufficient.
+    /// @param required The required fee amount.
+    /// @param provided The provided fee amount.
     error InsufficientFee(uint256 required, uint256 provided);
+
+    /// @dev Error thrown when too many assets are requested.
+    /// @param provided The number of assets provided.
+    /// @param maximum The maximum number of assets allowed.
     error TooManyAssets(uint256 provided, uint256 maximum);
+
+    /// @dev Error thrown when the price for an asset is not available.
+    /// @param asset The identifier of the asset.
     error PriceNotAvailable(bytes32 asset);
+
+    /// @dev Error thrown when a zero address is provided.
     error ZeroAddress();
+
+    /// @dev Error thrown when a transfer fails.
     error TransferFailed();
 
-    /**
-     * @dev Initializes the contract with an initial fee per asset.
-     * @param _initialFeePerAsset The initial fee to be charged per asset request.
-     */
-    constructor(uint256 _initialFeePerAsset) {
+    /// @dev Constructor that disables initializers.
+    constructor() {
+        _disableInitializers();
+    }
+
+    /// @notice Initializes the contract. Should be called only once.
+    function initialize() public initializer {
+        __Ownable_init();
+        __ReentrancyGuard_init();
+        __UUPSUpgradeable_init();
+        __Pausable_init();
         trustedSigner = owner();
-        feePerAsset = _initialFeePerAsset;
     }
 
     /**
@@ -83,21 +130,21 @@ contract PriceFeed is ReentrancyGuard, Ownable {
         uint8[] calldata _decimals,
         uint256[] calldata _prices,
         bytes memory _signature
-    ) external {
+    ) external whenNotPaused {
         bytes32 messageHash = keccak256(
             abi.encodePacked(_assets, _prices, _decimals)
         );
-        bytes32 ethSignedMessageHash = ECDSA.toEthSignedMessageHash(
+        bytes32 ethSignedMessageHash = ECDSAUpgradeable.toEthSignedMessageHash(
             messageHash
         );
-        address signer = ECDSA.recover(ethSignedMessageHash, _signature);
+        address signer = ECDSAUpgradeable.recover(ethSignedMessageHash, _signature);
 
-        if (signer != trustedSigner) 
-        revert InvalidSignature();
+        if (signer != trustedSigner)
+            revert InvalidSignature();
 
         uint256 length = _assets.length;
 
-        for (uint256 i = 0; i < length; ) {
+        for (uint256 i = 0; i < length;) {
             bytes32 asset = _assets[i];
             uint8 decimal = _decimals[i];
             uint256 price = _prices[i];
@@ -119,8 +166,8 @@ contract PriceFeed is ReentrancyGuard, Ownable {
      */
     function requestPrices(
         bytes32[] calldata _assets,
-        function(uint8[] memory , uint256[] memory) external _callback
-    ) external payable nonReentrant {
+        function(uint8[] memory, uint256[] memory) external _callback
+    ) external payable nonReentrant whenNotPaused {
         if (_assets.length > MAX_ASSETS_PER_REQUEST)
             revert TooManyAssets(_assets.length, MAX_ASSETS_PER_REQUEST);
 
@@ -130,7 +177,7 @@ contract PriceFeed is ReentrancyGuard, Ownable {
 
         if (msg.value < fees) revert TransferFailed();
 
-        for (uint256 i = 0; i < _assets.length; ) {
+        for (uint256 i = 0; i < _assets.length;) {
             bytes32 asset = _assets[i];
             uint256 price = prices[asset];
             uint8 decimal = decimals[asset];
@@ -138,14 +185,14 @@ contract PriceFeed is ReentrancyGuard, Ownable {
             if (price == 0) revert PriceNotAvailable(asset);
             requestedDecimals[i] = decimal;
             requestedPrices[i] = price;
-            
+
             unchecked {
                 i++;
             }
         }
 
-        _callback(requestedDecimals , requestedPrices);
-    } 
+        _callback(requestedDecimals, requestedPrices);
+    }
 
     /**
      * @notice Withdraws all Ether from the contract to the owner's address.
@@ -153,7 +200,25 @@ contract PriceFeed is ReentrancyGuard, Ownable {
      */
     function withdraw() public onlyOwner {
         uint256 amount = address(this).balance;
-        (bool success, ) = owner().call{value: amount}("");
+        (bool success,) = owner().call{value: amount}("");
         if (!success) revert TransferFailed();
+    }
+
+    /**
+     * @notice Pauses the contract.
+     * @dev Only the owner can call this function.
+     */
+    function _pause() internal whenNotPaused onlyOwner override {
+        PausableUpgradeable._pause();
+        emit Paused(_msgSender());
+    }
+
+    /**
+     * @notice Unpauses the contract.
+     * @dev Only the owner can call this function.
+     */
+    function _unpause() internal whenPaused onlyOwner override {
+        PausableUpgradeable._unpause();
+        emit Unpaused(_msgSender());
     }
 }
