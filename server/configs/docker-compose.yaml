@@ -1,0 +1,25 @@
+version: '3'
+services:
+  app:
+    build: .
+    ports:
+      - "8080:8080"  # Adjust this to your app's port
+      - "9090:9090"  # Metrics port
+    environment:
+      - RPC_URL=${RPC_URL}
+      - PRIVATE_KEY=${PRIVATE_KEY}
+      - CONTRACT_ADDRESS=${CONTRACT_ADDRESS}
+      - UPDATE_INTERVAL=${UPDATE_INTERVAL}
+      - METRICS_PORT=9090
+      - HEALTH_CHECK_PORT=8080
+      - LOG_LEVEL=${LOG_LEVEL}
+      - PRICE_API_ENDPOINT=${PRICE_API_ENDPOINT}
+
+  prometheus:
+    image: prom/prometheus:v2.30.3
+    ports:
+      - "9091:9090"
+    volumes:
+      - ./configs/prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'

@@ -25,8 +25,7 @@ contract PriceFeed is Initializable, ReentrancyGuardUpgradeable, OwnableUpgradea
     using SafeMathUpgradeable for uint256;
     using SafeMathUpgradeable for uint8;
 
-    /// @notice Address of the trusted signer for price updates.
-    address public trustedSigner;
+  
 
     /// @notice Fee charged per asset request.
     uint256 public feePerAsset;
@@ -55,12 +54,7 @@ contract PriceFeed is Initializable, ReentrancyGuardUpgradeable, OwnableUpgradea
     /// @param newFeePerAsset The new fee per asset.
     event FeeUpdated(uint256 newFeePerAsset);
 
-    /// @notice Event emitted when the trusted signer is updated.
-    /// @param newSigner The address of the new trusted signer.
-    event TrustedSignerUpdated(address newSigner);
-
-    /// @dev Error thrown when the signature is invalid.
-    error InvalidSignature();
+   
 
     /// @dev Error thrown when the provided fee is insufficient.
     /// @param required The required fee amount.
@@ -96,16 +90,6 @@ contract PriceFeed is Initializable, ReentrancyGuardUpgradeable, OwnableUpgradea
         feePerAsset = _newFeePerAsset;
     }
 
-    /**
-     * @notice Sets a new trusted signer for price updates.
-     * @dev Only the owner can call this function.
-     * @param _newSigner The address of the new trusted signer.
-     */
-    function setTrustedSigner(address _newSigner) external onlyOwner {
-        if (_newSigner == address(0)) revert ZeroAddress();
-        trustedSigner = _newSigner;
-        emit TrustedSignerUpdated(_newSigner);
-    }
 
     /**
      * @notice Sets a new fee per asset for price requests.
