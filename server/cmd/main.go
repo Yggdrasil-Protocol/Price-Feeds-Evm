@@ -1,9 +1,11 @@
 package main
 
+// PriceFeed logic contract deployed at: 0xC55c35410d4566d23A69dEA6BD68a380a1AEAbE8
+//   PriceFeed proxy contract deployed at: 0xbfccE30AC8aDBeF7cC3f6afdCaA558f41eF22877
+
 import (
 	"context"
 	"crypto/ecdsa"
-	"encoding/json"
 	"fmt"
 	"log"
 	"math/big"
@@ -20,8 +22,6 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/joho/godotenv"
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/robfig/cron/v3"
 	"go.uber.org/zap"
 
@@ -30,35 +30,17 @@ import (
 
 // Config holds the application configuration
 type Config struct {
-	RPCUrl           string
-	PrivateKey       string
-	ContractAddress  string
-	UpdateInterval   string
-	MetricsPort      string
-	HealthCheckPort  string
-	LogLevel         string
-	PriceAPIEndpoint string
+	RPCUrl          string
+	PrivateKey      string
+	ContractAddress string
+	UpdateInterval  string
+	LogLevel        string
 }
 
 // Global variables
 var (
 	logger *zap.Logger
 	config Config
-
-	updateCounter = prometheus.NewCounter(
-		prometheus.CounterOpts{
-			Name: "price_feed_updates_total",
-			Help: "Total number of price feed updates",
-		},
-	)
-
-	updateDuration = prometheus.NewHistogram(
-		prometheus.HistogramOpts{
-			Name:    "price_feed_update_duration_seconds",
-			Help:    "Duration of price feed updates in seconds",
-			Buckets: prometheus.DefBuckets,
-		},
-	)
 )
 
 func main() {
@@ -74,8 +56,6 @@ func main() {
 	defer logger.Sync()
 
 	// Initialize Prometheus metrics
-	prometheus.MustRegister(updateCounter)
-	prometheus.MustRegister(updateDuration)
 
 	// Connect to Ethereum client
 	client, err := ethclient.Dial(config.RPCUrl)
@@ -120,22 +100,8 @@ func main() {
 	c.Start()
 
 	// Start metrics server
-	go func() {
-		http.Handle("/metrics", promhttp.Handler())
-		logger.Info("Starting metrics server", zap.String("port", config.MetricsPort))
-		if err := http.ListenAndServe(":"+config.MetricsPort, nil); err != nil {
-			logger.Error("Metrics server failed", zap.Error(err))
-		}
-	}()
 
 	// Start health check server
-	go func() {
-		http.HandleFunc("/healthz", healthCheckHandler)
-		logger.Info("Starting health check server", zap.String("port", config.HealthCheckPort))
-		if err := http.ListenAndServe(":"+config.HealthCheckPort, nil); err != nil {
-			logger.Error("Health check server failed", zap.Error(err))
-		}
-	}()
 
 	// Wait for interrupt signal
 	sigChan := make(chan os.Signal, 1)
@@ -152,14 +118,31 @@ func main() {
 func updatePriceFeed(client *ethclient.Client, instance *pricefeed.PriceFeedContract, privateKey *ecdsa.PrivateKey, fromAddress common.Address) error {
 	start := time.Now()
 	defer func() {
-		duration := time.Since(start).Seconds()
-		updateDuration.Observe(duration)
+		logger.Info("updatePriceFeed duration", zap.Duration("duration", time.Since(start)))
 	}()
 
 	// Fetch latest prices from API
-	prices, err := fetchPrices()
-	if err != nil {
-		return fmt.Errorf("failed to fetch prices: %v", err)
+	// prices, err := fetchPrices()
+	// if err != nil {
+	// 	return fmt.Errorf("failed to fetch prices: %v", err)
+	// }
+
+	prices := []PriceData{
+		{
+			Asset:    "BTC",
+			Decimals: 8,
+			Price:    big.NewInt(500000000000), // e.g., $50,000.00
+		},
+		{
+			Asset:    "ETH",
+			Decimals: 18,
+			Price:    big.NewInt(3000000000000000000), // e.g., $3,000.00
+		},
+		{
+			Asset:    "USDC",
+			Decimals: 6,
+			Price:    big.NewInt(1000000), // e.g., $1.00
+		},
 	}
 
 	// Prepare the data for updatePrice function
@@ -195,27 +178,39 @@ func updatePriceFeed(client *ethclient.Client, instance *pricefeed.PriceFeedCont
 		return fmt.Errorf("failed to create transactor: %v", err)
 	}
 	auth.Nonce = big.NewInt(int64(nonce))
-	auth.Value = big.NewInt(0)       // in wei
-	auth.GasLimit = uint64(30000000) // adjust based on your contract's requirements
+	auth.Value = big.NewInt(0)     // in wei
+	auth.GasLimit = uint64(300000) // adjust based on your contract's requirements
 	auth.GasPrice = gasPrice
 
-	// Call the updatePrice function
-	tx, err := instance.UpdatePrice(auth, assets, decimals, priceValues)
+	// //Call the updatePrice function
+	// tx, err := instance.UpdatePrice(auth, assets, decimals, priceValues)
+	// if err != nil {
+	// 	return fmt.Errorf("failed to update price: %v", err)
+	// }
+
+	// logger.Info("Transaction sent", zap.String("hash", tx.Hash().Hex()))
+
+	// // Wait for the transaction to be mined
+	// receipt, err := waitForTransaction(context.Background(), client, tx.Hash())
+	// if receipt.Status != types.ReceiptStatusSuccessful {
+	// 	return fmt.Errorf("transaction failed: %v", receipt.Status)
+	// }
+	// if err != nil {
+	// 	return fmt.Errorf("failed to get transaction receipt: %v", err)
+	// }
+
+	// logger.Info("Transaction mined", zap.Uint64("block", receipt.BlockNumber.Uint64()))
+
+	// owner, err := instance.Owner(&bind.CallOpts{From: fromAddress})
+
+	// logger.Info(owner.Hex())
+
+	price, err := instance.GetPrice(&bind.CallOpts{From: fromAddress}, assets[0])
 	if err != nil {
-		return fmt.Errorf("failed to update price: %v", err)
+		return fmt.Errorf("failed to get price: %v", err)
 	}
 
-	logger.Info("Transaction sent", zap.String("hash", tx.Hash().Hex()))
-
-	// Wait for the transaction to be mined
-	receipt, err := waitForTransaction(context.Background(), client, tx.Hash())
-	if err != nil {
-		return fmt.Errorf("failed to get transaction receipt: %v", err)
-	}
-
-	logger.Info("Transaction mined", zap.Uint64("block", receipt.BlockNumber.Uint64()))
-	updateCounter.Inc()
-
+	logger.Info("Price", zap.String("price", price.String()))
 	return nil
 }
 
@@ -251,15 +246,20 @@ func loadConfig() error {
 		return fmt.Errorf("error loading .env file: %v", err)
 	}
 
+	// config = Config{
+	// 	RPCUrl:          os.Getenv("RPC_URL"),
+	// 	PrivateKey:      os.Getenv("PRIVATE_KEY"),
+	// 	ContractAddress: os.Getenv("CONTRACT_ADDRESS"),
+	// 	UpdateInterval:  os.Getenv("UPDATE_INTERVAL"),
+
+	// 	LogLevel: os.Getenv("LOG_LEVEL"),
+	// }
+
 	config = Config{
-		RPCUrl:           os.Getenv("RPC_URL"),
-		PrivateKey:       os.Getenv("PRIVATE_KEY"),
-		ContractAddress:  os.Getenv("CONTRACT_ADDRESS"),
-		UpdateInterval:   os.Getenv("UPDATE_INTERVAL"),
-		MetricsPort:      os.Getenv("METRICS_PORT"),
-		HealthCheckPort:  os.Getenv("HEALTH_CHECK_PORT"),
-		LogLevel:         os.Getenv("LOG_LEVEL"),
-		PriceAPIEndpoint: os.Getenv("PRICE_API_ENDPOINT"),
+		RPCUrl:          os.Getenv("RPC_URL"),
+		PrivateKey:      os.Getenv("PRIVATE_KEY"),
+		ContractAddress: "0x581B04a847B7a5DdF3b7Aee3CAEB2943229e18eD",
+		UpdateInterval:  os.Getenv("UPDATE_INTERVAL"),
 	}
 
 	if config.RPCUrl == "" || config.PrivateKey == "" || config.ContractAddress == "" {
@@ -268,14 +268,6 @@ func loadConfig() error {
 
 	if config.UpdateInterval == "" {
 		config.UpdateInterval = "*/5 * * * * *" // Default to every 5 seconds
-	}
-
-	if config.MetricsPort == "" {
-		config.MetricsPort = "9090" // Default metrics port
-	}
-
-	if config.HealthCheckPort == "" {
-		config.HealthCheckPort = "8080" // Default health check port
 	}
 
 	if config.LogLevel == "" {
@@ -312,35 +304,35 @@ type PriceData struct {
 	Price    *big.Int
 }
 
-func fetchPrices() ([]PriceData, error) {
-	resp, err := http.Get(config.PriceAPIEndpoint)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
+// func fetchPrices() ([]PriceData, error) {
+// 	resp, err := http.Get(config.PriceAPIEndpoint)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	defer resp.Body.Close()
 
-	var data []struct {
-		Asset    string `json:"asset"`
-		Decimals uint8  `json:"decimals"`
-		Price    string `json:"price"`
-	}
+// 	var data []struct {
+// 		Asset    string `json:"asset"`
+// 		Decimals uint8  `json:"decimals"`
+// 		Price    string `json:"price"`
+// 	}
 
-	if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
-		return nil, err
-	}
+// 	if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
+// 		return nil, err
+// 	}
 
-	prices := make([]PriceData, len(data))
-	for i, item := range data {
-		price, ok := new(big.Int).SetString(item.Price, 10)
-		if !ok {
-			return nil, fmt.Errorf("invalid price for asset %s: %s", item.Asset, item.Price)
-		}
-		prices[i] = PriceData{
-			Asset:    item.Asset,
-			Decimals: item.Decimals,
-			Price:    price,
-		}
-	}
+// 	prices := make([]PriceData, len(data))
+// 	for i, item := range data {
+// 		price, ok := new(big.Int).SetString(item.Price, 10)
+// 		if !ok {
+// 			return nil, fmt.Errorf("invalid price for asset %s: %s", item.Asset, item.Price)
+// 		}
+// 		prices[i] = PriceData{
+// 			Asset:    item.Asset,
+// 			Decimals: item.Decimals,
+// 			Price:    price,
+// 		}
+// 	}
 
-	return prices, nil
-}
+// 	return prices, nil
+// }

@@ -1,31 +1,36 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.25;
 
-import "../lib/openzeppelin-contracts-upgradeable/contracts/security/ReentrancyGuardUpgradeable.sol";
+// import "../lib/openzeppelin-contracts-upgradeable/contracts/security/ReentrancyGuardUpgradeable.sol";
 import "../lib/openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol";
-import "../lib/openzeppelin-contracts-upgradeable/contracts/security/PausableUpgradeable.sol";
-import "../lib/openzeppelin-contracts-upgradeable/contracts/utils/math/SafeMathUpgradeable.sol";
-import "../lib/openzeppelin-contracts-upgradeable/contracts/utils/cryptography/ECDSAUpgradeable.sol";
-import "../lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol";
-import "../lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol";
+// import "../lib/openzeppelin-contracts-upgradeable/contracts/security/PausableUpgradeable.sol";
+// import "../lib/openzeppelin-contracts-upgradeable/contracts/utils/math/SafeMathUpgradeable.sol";
+// import "../lib/openzeppelin-contracts-upgradeable/contracts/utils/cryptography/ECDSAUpgradeable.sol";
+// import "../lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol";
+// import "../lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol";
+
+import "../lib/openzeppelin-contracts/contracts/security/ReentrancyGuard.sol";
+import "../lib/openzeppelin-contracts/contracts/access/Ownable.sol";
+import "../lib/openzeppelin-contracts/contracts/security/Pausable.sol";
+import "../lib/openzeppelin-contracts/contracts/utils/math/SafeMath.sol";
+import "../lib/openzeppelin-contracts/contracts/utils/cryptography/ECDSA.sol";
+
 
 
 /**
  * @title PriceFeed
  * @dev This contract allows for the updating and requesting of asset prices, managed by a trusted signer.
  */
-contract PriceFeed is Initializable, ReentrancyGuardUpgradeable, OwnableUpgradeable, PausableUpgradeable, UUPSUpgradeable {
+contract PriceFeed is  ReentrancyGuard, Ownable, Pausable {
     /// @dev Function to receive Ether. `msg.data` must be empty.
     receive() external payable {}
 
     /// @dev Fallback function is called when `msg.data` is not empty.
     fallback() external payable {}
 
-    using ECDSAUpgradeable for bytes32;
-    using SafeMathUpgradeable for uint256;
-    using SafeMathUpgradeable for uint8;
-
-  
+    using ECDSA for bytes32;
+    using SafeMath for uint256;
+    using SafeMath for uint8;
 
     /// @notice Fee charged per asset request.
     uint256 public feePerAsset;
@@ -54,7 +59,7 @@ contract PriceFeed is Initializable, ReentrancyGuardUpgradeable, OwnableUpgradea
     /// @param newFeePerAsset The new fee per asset.
     event FeeUpdated(uint256 newFeePerAsset);
 
-   
+    
 
     /// @dev Error thrown when the provided fee is insufficient.
     /// @param required The required fee amount.
@@ -77,19 +82,13 @@ contract PriceFeed is Initializable, ReentrancyGuardUpgradeable, OwnableUpgradea
     error TransferFailed();
 
     /// @dev Constructor that disables initializers.
-    constructor() {
-        _disableInitializers();
+    constructor(uint256 _feePerAsset) {
+        feePerAsset = _feePerAsset; 
+        
     }
 
     /// @notice Initializes the contract. Should be called only once.
-    function initialize( uint256 _newFeePerAsset ) public initializer {
-        __Ownable_init();
-        __ReentrancyGuard_init();
-        __UUPSUpgradeable_init();
-        __Pausable_init();
-        feePerAsset = _newFeePerAsset;
-    }
-
+    
 
     /**
      * @notice Sets a new fee per asset for price requests.
@@ -109,7 +108,6 @@ contract PriceFeed is Initializable, ReentrancyGuardUpgradeable, OwnableUpgradea
         uint8[] calldata _decimals,
         uint256[] calldata _prices
     ) external onlyOwner whenNotPaused {
-    
         uint256 length = _assets.length;
 
         for (uint256 i = 0; i < length;) {
@@ -143,7 +141,7 @@ contract PriceFeed is Initializable, ReentrancyGuardUpgradeable, OwnableUpgradea
         uint256[] memory requestedPrices = new uint256[](_assets.length);
         uint256 fees = feePerAsset.mul(_assets.length);
 
-        if (msg.value < fees) revert TransferFailed();
+        if (msg.value < fees) revert InsufficientFee(fees, msg.value);
 
         for (uint256 i = 0; i < _assets.length;) {
             bytes32 asset = _assets[i];
@@ -176,20 +174,53 @@ contract PriceFeed is Initializable, ReentrancyGuardUpgradeable, OwnableUpgradea
      * @notice Pauses the contract.
      * @dev Only the owner can call this function.
      */
-    function _pause() internal whenNotPaused onlyOwner override {
-        PausableUpgradeable._pause();
-        emit Paused(_msgSender());
+    function pause() public whenNotPaused onlyOwner {
+        _pause();
     }
 
     /**
      * @notice Unpauses the contract.
      * @dev Only the owner can call this function.
      */
-    function _unpause() internal whenPaused onlyOwner override {
-        PausableUpgradeable._unpause();
+    function unpause() public whenPaused onlyOwner {
+        _unpause();
+    }
+
+    /**
+     * @notice Pauses the contract.
+     * @dev Internal function to pause the contract.
+     */
+    function _pause() internal override whenNotPaused {
+       Pausable._pause();
+        emit Paused(_msgSender());
+    }
+
+    /**
+     * @notice Unpauses the contract.
+     * @dev Internal function to unpause the contract.
+     */
+    function _unpause() internal override whenPaused {
+        Pausable._unpause();
         emit Unpaused(_msgSender());
     }
 
+    /**
+     * @notice Gets the price of an asset.
+     * @param _asset The identifier of the asset.
+     * @return The price of the asset.
+     */
+    function getPrice(bytes32 _asset) public view returns (uint256) {
+        return prices[_asset];
+    }
 
-    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
+    /**
+     * @notice Gets the decimals of an asset.
+     * @param _asset The identifier of the asset.
+     * @return The decimals of the asset.
+     */
+    function getDecimal(bytes32 _asset) public onlyOwner view returns (uint8) {
+        return decimals[_asset];
+    }
+
+   
 }

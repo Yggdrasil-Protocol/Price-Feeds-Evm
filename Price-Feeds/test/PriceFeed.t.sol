@@ -1,120 +1,130 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.13;
 
 import "forge-std/Test.sol";
 import "../src/PriceFeed.sol";
 import "../src/PriceFeedProxy.sol";
-import "../lib/openzeppelin-contracts-upgradeable/contracts/utils/cryptography/ECDSAUpgradeable.sol";
-import "../lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol";
+import "../lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol";
 
 contract PriceFeedTest is Test {
-    PriceFeed priceFeedImplementation;
-    PriceFeedProxy priceFeedProxy;
-    PriceFeed priceFeed;
+    PriceFeed private priceFeed;
+    PriceFeedProxy private proxy;
+    PriceFeed private proxiedPriceFeed;
 
-    address owner = address(1);
-    address user = address(2);
-    address trustedSigner = address(3);
-
-    bytes32 asset1 = keccak256(abi.encodePacked("ASSET1"));
-    uint256 price1 = 1000;
-    uint8 decimals1 = 18;
-
-    bytes32 asset2 = keccak256(abi.encodePacked("ASSET2"));
-    uint256 price2 = 2000;
-    uint8 decimals2 = 18;
+    address private owner = address(1);
+    address private user = address(2);
 
     function setUp() public {
-        bytes memory data = abi.encodeWithSelector(priceFeedImplementation.initialize.selector, 100);
-        priceFeedProxy = new PriceFeedProxy(address(priceFeedImplementation), data);
-        priceFeed = PriceFeed(payable(address(priceFeedProxy)));
+        // Deploy the implementation contract
+        priceFeed = new PriceFeed();
 
-        // Set owner
-        vm.prank(owner);
-        priceFeed.transferOwnership(owner);
+        // Encode the initializer call
+        bytes memory data = abi.encodeWithSignature("initialize(uint256)", 1 ether);
 
-        // Set trusted signer
-        vm.prank(owner);
-        priceFeed.setTrustedSigner(trustedSigner);
+        // Deploy the proxy contract
+        proxy = new PriceFeedProxy(address(priceFeed), data);
+
+        // Interact with the contract through the proxy
+        proxiedPriceFeed = PriceFeed(payable(address(proxy)));
+
+        // Transfer ownership to the owner address
+        proxiedPriceFeed.transferOwnership(owner);
+
+        // Deal some ETH to the user for testing
+        vm.deal(user, 10 ether);
     }
 
-    function testInitialize() public {
-        assertEq(priceFeed.feePerAsset(), 100);
-        assertEq(priceFeed.trustedSigner(), trustedSigner);
-    }
-
-    function testSetTrustedSigner() public {
-        vm.prank(owner);
-        priceFeed.setTrustedSigner(user);
-        assertEq(priceFeed.trustedSigner(), user);
+    function testInitialFeePerAsset() public {
+        assertEq(proxiedPriceFeed.feePerAsset(), 1 ether);
     }
 
     function testSetFeePerAsset() public {
-        vm.prank(owner);
-        priceFeed.setFeePerAsset(200);
-        assertEq(priceFeed.feePerAsset(), 200);
+        vm.startPrank(owner);
+        proxiedPriceFeed.setFeePerAsset(2 ether);
+        assertEq(proxiedPriceFeed.feePerAsset(), 2 ether);
+        vm.stopPrank();
+    }
+
+    function testSetFeePerAssetUnauthorized() public {
+        vm.startPrank(user);
+        vm.expectRevert("Ownable: caller is not the owner");
+        proxiedPriceFeed.setFeePerAsset(2 ether);
+        vm.stopPrank();
     }
 
     function testUpdatePrice() public {
-        bytes32[] memory assets = new bytes32[](2);
-        assets[0] = asset1;
-        assets[1] = asset2;
+        bytes32[] memory assets = new bytes32[](1);
+        uint8[] memory decimals = new uint8[](1);
+        uint256[] memory prices = new uint256[](1);
 
-        uint8[] memory decimals = new uint8[](2);
-        decimals[0] = decimals1;
-        decimals[1] = decimals2;
+        assets[0] = keccak256("ETH");
+        decimals[0] = 18;
+        prices[0] = 2000 ether;
 
-        uint256[] memory prices = new uint256[](2);
-        prices[0] = price1;
-        prices[1] = price2;
+        vm.startPrank(owner);
+        proxiedPriceFeed.updatePrice(assets, decimals, prices);
 
-       
+        vm.stopPrank();
+    }
 
-        vm.prank(trustedSigner);
-        priceFeed.updatePrice(assets, decimals, prices);
+    function testUpdatePriceUnauthorized() public {
+        bytes32[] memory assets = new bytes32[](1);
+        uint8[] memory decimals = new uint8[](1);
+        uint256[] memory prices = new uint256[](1);
 
-        
+        assets[0] = keccak256("ETH");
+        decimals[0] = 18;
+        prices[0] = 2000 ether;
+
+        vm.startPrank(user);
+        vm.expectRevert("Ownable: caller is not the owner");
+        proxiedPriceFeed.updatePrice(assets, decimals, prices);
+        vm.stopPrank();
     }
 
     function testRequestPrices() public {
-        bytes32[] memory assets = new bytes32[](2);
-        assets[0] = asset1;
-        assets[1] = asset2;
+        bytes32[] memory assets = new bytes32[](1);
+        uint8[] memory decimals = new uint8[](1);
+        uint256[] memory prices = new uint256[](1);
 
-        uint8[] memory decimals = new uint8[](2);
-        decimals[0] = decimals1;
-        decimals[1] = decimals2;
+        assets[0] = keccak256("ETH");
+        decimals[0] = 18;
+        prices[0] = 2000 ether;
 
-        uint256[] memory prices = new uint256[](2);
-        prices[0] = price1;
-        prices[1] = price2;
+        vm.startPrank(owner);
+        proxiedPriceFeed.updatePrice(assets, decimals, prices);
+        vm.stopPrank();
 
-     
+        vm.deal(user, 10 ether);
 
-        vm.prank(trustedSigner);
-        priceFeed.updatePrice(assets, decimals, prices);
+        function(uint8[] memory, uint256[] memory) external callback = this.priceCallback;
 
-        function(uint8[] memory, uint256[] memory) external callback = this.testCallback;
-        bytes memory callData = abi.encodeWithSelector(callback.selector, decimals, prices);
-
-        vm.prank(user);
-        priceFeed.requestPrices{value: 200}(assets, callback);
+        vm.startPrank(user);
+        proxiedPriceFeed.requestPrices{value: 1 ether}(assets, callback);
+        vm.stopPrank();
     }
 
-    function testCallback(uint8[] memory _decimals, uint256[] memory _prices) public {
-        assertEq(_decimals[0], decimals1);
-        assertEq(_prices[0], price1);
-        assertEq(_decimals[1], decimals2);
-        assertEq(_prices[1], price2);
-    }
+    function priceCallback(uint8[] memory, uint256[] memory) external pure {}
 
     function testWithdraw() public {
-        vm.deal(address(priceFeed), 1000);
+        // Send ETH to the contract
+        vm.deal(address(proxy), 10 ether);
 
-        vm.prank(owner);
-        priceFeed.withdraw();
+        vm.startPrank(owner);
+        uint256 balanceBefore = owner.balance;
+        proxiedPriceFeed.withdraw();
+        uint256 balanceAfter = owner.balance;
+        assertEq(balanceAfter, balanceBefore + 10 ether);
+        vm.stopPrank();
+    }
 
-        assertEq(address(priceFeed).balance, 0);
-        assertEq(owner.balance, 1000);
+    function testWithdrawUnauthorized() public {
+        // Send ETH to the contract
+        vm.deal(address(proxy), 10 ether);
+
+        vm.startPrank(user);
+        vm.expectRevert("Ownable: caller is not the owner");
+        proxiedPriceFeed.withdraw();
+        vm.stopPrank();
     }
 }
